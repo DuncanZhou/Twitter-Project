@@ -25,6 +25,7 @@ def Write2CSV(users,path):
     :param path:  写入文件路径
     '''
     with open(path,'wb') as csvfile:
+        count = 0
         writer = csv.writer(csvfile)
         # 写入CSV文件的标题
         writer.writerow(['userid','screen_name','name','follwers_count','friends_count','favourites_count','location','verified','category'])
@@ -32,8 +33,10 @@ def Write2CSV(users,path):
         for user in users:
             temp = (user.id,user.screen_name,user.name,user.followers_count,user.friends_count,user.favourites_count,user.location,user.verified,user.category)
             twitter_users.append(temp)
+            count += 1
         writer.writerows(twitter_users)
         csvfile.close()
+        print "共计写入%d个用户" % count
 
 # 对外接口
 def WriteUsers2CSV(table,path):
