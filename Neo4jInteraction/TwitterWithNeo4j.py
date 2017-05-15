@@ -8,9 +8,6 @@
 from neo4j.v1 import GraphDatabase,basic_auth
 
 
-
-
-
 def Conn():
     # 加载驱动
     # 加密方式
@@ -38,3 +35,7 @@ def CreateNodesFromCSV(path):
         tx.success = True
     # session.run(statement)
     Close(session,driver)
+
+# 根据screen_name更新结点之间的关系
+def insertRel(id1,id2):
+    pass
