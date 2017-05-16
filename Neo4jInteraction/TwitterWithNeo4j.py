@@ -37,5 +37,32 @@ def CreateNodesFromCSV(path):
     Close(session,driver)
 
 # 根据screen_name更新结点之间的关系
-def insertRel(id1,id2):
-    pass
+def InsertRel(sname1,sname2):
+    # id1用户followsid2用户
+    # 增加这样的关系 (n:TwitterUser {screen_name:sname1})-[:follows]->(m:TwitterUser {screen_name:sname2})
+    driver,session = Conn()
+    statement = "MATCH (n:TwitterUser {screen_name:'%s'}),(m:TwitterUser {screen_name:'%s'}) CREATE (n)-[:follows]->(m)" % (sname1,sname2)
+    with session.begin_transaction() as tx:
+        tx.run(statement)
+        tx.success = True
+    Close(driver,session)
+
+# 根据screen_name建立索引
+def IndexBySName():
+    driver,session = Conn()
+    # 创建索引语句
+    statement = "CREATE INDEX ON :TwitterUser(screen_name)"
+    with session.begin_transaction() as tx:
+        tx.run(statement)
+        tx.success = True
+    Close(session,driver)
+
+# 增加约束条件
+def UniqueID():
+    driver,session = Conn()
+    # 创建索引语句
+    statement = "CREATE CONSTRAINT ON (user:TwitterUser) ASSERT user.userid IS UNIQUE"
+    with session.begin_transaction() as tx:
+        tx.run(statement)
+        tx.success = True
+    Close(session,driver)
