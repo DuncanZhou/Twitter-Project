@@ -16,6 +16,25 @@ def CreateNodes(path):
     '''
     neo4j.CreateNodesFromCSV(path)
 
-if __name__ == '__main__':
+
+# 初始化操作
+def Initial(path="file:///users.csv"):
+    '''
+
+    :param path: csv路径
+    :return:
+    '''
     # csv文件需要放在默认import目录下
-    CreateNodes("file:///users.csv")
+    CreateNodes(path)
+
+    # 建立索引
+    neo4j.IndexBySName()
+
+    # 设置userid为唯一
+    neo4j.UniqueID()
+
+if __name__ == '__main__':
+    # Initial()
+    # 查询两个用户是否有follows关系
+    # print neo4j.isFollow("22mosalah","realDonaldTrump")
+    neo4j.InsertRel("22mosalah","realDonaldTrump")
