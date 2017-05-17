@@ -49,15 +49,31 @@ def isFollow(sname1,sname2):
 
 
 # 装饰器函数,在插入两个结点之间的关系时先判断两个结点之间是否已经存在关系
+def checkRel(func):
+    def wrapper(sname1,sname2):
+        driver,session = Conn()
+        statement = "MATCH (n:TwitterUser {screen_name:'%s'})-[:follows]->(m:TwitterUser {screen_name:'%s'}) RETURN exists((n)-[:follows]->(m)) as isFollow" % (sname1,sname2)
+        result = session.run(statement)
+        for res in result:
+            isFollow = res['isFollow']
+        Close(driver,session)
+        if(isFollow == True):
+            print "关系已存在!"
+        else:
+            func(sname1,sname2)
+    return wrapper
+
 # 根据screen_name更新结点之间的关系
+# 定义一个装饰器
+@checkRel
 def InsertRel(sname1,sname2):
     # id1用户followsid2用户
     # 增加这样的关系 (n:TwitterUser {screen_name:sname1})-[:follows]->(m:TwitterUser {screen_name:sname2})
     driver,session = Conn()
     statement = "MATCH (n:TwitterUser {screen_name:'%s'}),(m:TwitterUser {screen_name:'%s'}) CREATE (n)-[:follows]->(m)" % (sname1,sname2)
-    if(isFollow(sname1,sname2) == True):
-        print "关系已存在!"
-        return
+    # if(isFollow(sname1,sname2) == True):
+    #     print "关系已存在!"
+    #     return
     with session.begin_transaction() as tx:
         tx.run(statement)
         tx.success = True
