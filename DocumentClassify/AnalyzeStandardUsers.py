@@ -1,21 +1,21 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
 '''@author:duncan'''
-import MySQLdb
-import pymongo
 from pymongo import MongoClient
 import re
 
 import time
-import xlrd
 import TweetsClassify
 import TweetsClassifyTraining
 import os
 import sys
+sys.path.append("..")
+from MySQLInteraction import TwitterWithMysql as mydb
 from nltk.corpus import stopwords
 from nltk import word_tokenize
+import config
 
-project_folder_path = os.path.abspath(".." + os.path.sep + "..")
+project_folder_path = config.project_folder_path
 Famous_tweets_path = project_folder_path + "/Famous_Tweets"
 TestTweets_path = project_folder_path + "/TwitterProject/DocumentClassify/TestTweets/"
 
@@ -29,6 +29,19 @@ import TwitterUsers
 # password = "123"
 # databasename = "TwitterUserInfo"
 
+
+
+# 读取停用词
+def getStopWords(path):
+    stopwords = set()
+    with open(path,"r") as f:
+        lines = f.readlines()
+    for line in lines:
+        stopwords.add(line.replace("\r\n","").rstrip())
+    return stopwords
+
+stopwords = getStopWords(config.stop_words_path)
+
 class Famous:
     def __init__(self,name,screen_name,category):
         self.name = name
@@ -38,16 +51,9 @@ class Famous:
     def __str__(self):
         return "姓名: %s   screen_name: %s   类别: %s" % (self.name,self.screen_name,self.category)
 # 获取用户
-def getStandardUsers(cursor):
-    users = []
-    cursor.execute("SELECT * FROM StandardUsers")
-    data = cursor.fetchall()
-    for d in data:
-        user = TwitterUsers.User(d[3],d[1],d[0],d[4],d[7],d[9],d[8],d[10],d[14])
-        user.setCategory(d[2])
-        users.append(user)
+def getStandardUsers(table):
+    users = mydb.getUsersInfo(table)
     return users
-
 
 # 使用除回复性其他推文作为输入
 def GetClassifyResultsByAllTweets(tweets_path):
@@ -74,8 +80,6 @@ def GetClassifyResultsByAllTweets(tweets_path):
 
 # 并不是把推文全部作为输入,在去除推文中停用词并将所有单词作为输入
 def GetClassifyResultsByTF(users_id,tweet_mongo):
-    twitter_stop_words = ["@","from","TO","to",":","!",".","#","https","RT","URL","in","&",";","re","''","?","thank","thanks","do","be","today","yesterday","tomorrow","night","tonight","day","year","last","oh","yeah"]
-
     # 返回四种分类器的结果
     Classifiers = ['MultinomialNB','LinearSVM','RandomForest','SGD','ExtraTree']
     weight = [0.4,0.3,0.1,0.1,0.1]
@@ -99,7 +103,7 @@ def GetClassifyResultsByTF(users_id,tweet_mongo):
         # words = word_tokenize(text.decode("utf-8"))
         words = word_tokenize(text)
         # 判断是否是单词,去除停用词
-        wordlist = [word for word in words if word.isalpha() and word not in (twitter_stop_words and stopwords.words("english"))]
+        wordlist = [word for word in words if word.isalpha() and word not in stopwords]
 
         # 以下步骤统计词频,由于统计词频效果不好,故舍弃
         # wordset = set(wordlist)
@@ -138,13 +142,10 @@ def GetClassifyResultsByTF(users_id,tweet_mongo):
     return multiclassifier_result,MultinomialNB_resdic
 
 # 从mysql中查询用户的分类形成字典返回
-def GetCategoryById(users_id,cursor):
+def GetCategoryById(users):
     category_dic = {}
-    for id in users_id:
-        cursor.execute("select category from StandardUsers where userid = '%s'" % id)
-        data = cursor.fetchall()
-        category = data[0][0]
-        category_dic[id] = category
+    for user in users:
+        category_dic[user.id] = user.category
     return category_dic
 
 if __name__ == '__main__':
@@ -152,14 +153,6 @@ if __name__ == '__main__':
     # 分类器类型
     Classifiers = ['MultinomialNB','LinearSVM','RandomForest','SGD','ExtraTree']
     start = time.time()
-    conn = MySQLdb.connect(
-        host='localhost',
-        port = 3306,
-        user='root',
-        passwd='123',
-        db ='TwitterUserInfo',
-    )
-    cursor = conn.cursor()
 
     # 配置Mongodb查询
     client = MongoClient('127.0.0.1',27017)
@@ -175,7 +168,7 @@ if __name__ == '__main__':
     # users = getUsers(cursor)
 
     # 获取标准人物样本库中的用户
-    StandardUsers = getStandardUsers(cursor)
+    StandardUsers = getStandardUsers('StandardUsers')
     # 将用户的id保存
 
 
@@ -241,7 +234,7 @@ if __name__ == '__main__':
 
     # -------------------------------------------------------------------------------------------------
     # 获取用户的类别
-    category_dic = GetCategoryById(StandardUsers_id,cursor)
+    category_dic = GetCategoryById(StandardUsers)
 
     # # 单模型
     # results = GetClassifyResultsByTF(StandardUsers_id,tweet)
@@ -316,10 +309,5 @@ if __name__ == '__main__':
     #                 count += 1
     #     print "accuracy is %f" % (count * 1.0 / filesid)
     #     print "-------------------------------------------------------------------------------------------"
-
-    # 关闭数据库连接
-    cursor.close()
-    conn.commit()
-    conn.close()
     end = time.time()
     print "共用时%fs" % (end - start)

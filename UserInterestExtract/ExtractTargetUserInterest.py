@@ -13,16 +13,27 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from numpy import *
+import config
 
 BeatFactor = 3000000
 
-project_path = os.path.abspath("..")
-project_folder_path = os.path.abspath(".." + os.path.sep + "..")
-twitter_stop_words = ["from","TO","to","https","RT","URL","in","re","thank","thanks","today","yesterday","tomorrow","night","tonight","day","year","last","oh","yeah","amp"]
+project_path = config.project_path
+project_folder_path = config.project_folder_path
 followers_file_path = project_folder_path + "/TweetsSamples/"
 target_tweets_path = project_folder_path + "/TweetsSamples/"
 
 # usercandidate = []
+
+# 读取停用词
+def getStopWords(path):
+    stopwords = set()
+    with open(path,"r") as f:
+        lines = f.readlines()
+    for line in lines:
+        stopwords.add(line.replace("\r\n","").rstrip())
+    return stopwords
+
+stopwords = getStopWords(config.stop_words_path)
 
 def PreProcess(text):
     # open_file = open(slang_file_path,"rb")
@@ -39,7 +50,7 @@ def PreProcess(text):
     # clear @/#/url/emotion
     for word in words:
         # count = 0
-        if word not in (stopwords.words("english") and twitter_stop_words):
+        if word not in stopwords:
             # if word in slang:
             # 	count += 1
             # 	print count
@@ -87,8 +98,7 @@ def Generation(pos):
             word = lemmatizer.lemmatize(w[0])
         # else:
         #     word = lemmatizer.lemmatize(w[0],'a')
-        if len(word) != 0 and word not in (stopwords.words("english") and twitter_stop_words) and len(word) <= 20:
-            usercandidate.append(word.lower())
+            usercandidate.append(word)
     i = 0
     while(i < len(pos) - 2):
         phase = ""
@@ -144,7 +154,7 @@ def CalculateTF(usercandidate):
     # 计算TF值
     for key in vacdic.keys():
         vacdic[key] = vacdic[key] * 1.0 / sum
-        
+
     # 按照键值排序
     vacdic = sorted(vacdic.items(),key = lambda dic:dic[1],reverse = True)
     # 输出前100个兴趣候选集

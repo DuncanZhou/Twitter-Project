@@ -45,7 +45,7 @@ def Training(data_set_path):
     test_set_y = []
     rarray = np.random.random(totalnumber)
     for i in range(totalnumber):
-        if rarray[i] < 0.8:
+        if rarray[i] < 0.7:
             training_set_x.append(training_set.data[i])
             training_set_y.append(training_set.target[i])
         else:
@@ -94,4 +94,4 @@ def Training(data_set_path):
     predicted = clf.predict(test_tf_transformer)
     print "accuracy:"
     print np.mean(predicted == test_set_y)
-Training("/DocumentClassify/DataSet3")
+Training("/DocumentClassify/DataSet1")

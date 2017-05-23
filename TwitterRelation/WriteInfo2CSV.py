@@ -28,7 +28,7 @@ def Write2CSV(users,path):
         count = 0
         writer = csv.writer(csvfile)
         # 写入CSV文件的标题
-        writer.writerow(['userid','screen_name','name','follwers_count','friends_count','favourites_count','location','verified','category'])
+        writer.writerow(['userid','screen_name','name','followers_count','friends_count','favourites_count','location','verified','category'])
         twitter_users = []
         for user in users:
             temp = (user.id,user.screen_name,user.name,user.followers_count,user.friends_count,user.favourites_count,user.location,user.verified,user.category)

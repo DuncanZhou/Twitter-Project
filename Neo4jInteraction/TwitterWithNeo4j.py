@@ -7,7 +7,6 @@
 
 from neo4j.v1 import GraphDatabase,basic_auth
 
-
 def Conn():
     # 加载驱动
     # 加密方式

@@ -3,8 +3,11 @@
 '''@author:duncan'''
 
 import xml.dom.minidom
+import chardet
 import MySQLdb
 import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 import os
 project_folder_path = os.path.abspath(".." + os.path.sep + "..")
 from sys import path
@@ -51,8 +54,8 @@ def GenerateXml(users):
         # 标签增加属性
         nameE.setAttribute("coding","utf-8")
 
-        # 姓名标签内容
-        nameT = dom.createTextNode(str(twitter_user.name))
+        # 姓名标签内容,将编码方式转换一下
+        nameT = dom.createTextNode(twitter_user.name.decode('ISO-8859-2').encode('utf-8'))
         # 将内容加入标签中
         nameE.appendChild(nameT)
 
@@ -151,7 +154,6 @@ if __name__ == '__main__':
         db ='TwitterUserInfo',
     )
     cursor = conn.cursor()
-
     # 获取所有用户
     users = getUsers(cursor)
     print "totoal number of users is %d" % len(users)

@@ -1,63 +1,21 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
 
-import pymongo
-from pymongo import MongoClient
-import MySQLdb
-import time
 import re
 import math
-import os
-project_folder_path = os.path.abspath(".." + os.path.sep + "..")
-from sys import path
-path.append(project_folder_path + "/TwitterProject/TwitterUsers/")
-import TwitterUsers
-# 重构
-# class User:
-#     def __init__(self,id,screen_name,name,location,statuses_count,friends_count,followers_count,favourites_count,verified):
-#         self.id = id
-#         self.screen_name = screen_name
-#         self.name = name
-#         self.followers_count = followers_count
-#         self.friends_count = friends_count
-#         self.statuses_count = statuses_count
-#         self.favourites_cout = favourites_count
-#         self.location = location
-#         self.verified = verified
-#
-#     def getProportion(self):
-#         if self.friends_count != 0:
-#             return (self.followers_count) * 1.0 / self.friends_count
-#         else:
-#             return (self.followers_count) * 1.0 / 0.1
-#
-#     def __str__(self):
-#         if self.verified == 1:
-#             verify = "yes"
-#         else:
-#             verify = "no"
-#         if self.location == "":
-#             location = "no file"
-#         else:
-#             location = self.location
-#
-#         return "user id:%s  screen_name:%s  name:%s  verified:%s  location:%s  followers:%d  followings:%d  tweets:%d  favourites:%d" % (self.id,self.screen_name,self.name,verify,location,self.followers_count,self.friends_count,self.statuses_count,self.favourites_cout)
+import sys
+sys.path.append("..")
+from MySQLInteraction import TwitterWithMysql as mydb
+from MongoDBInteraction import TweetsWithMongo as mongo
 
-def getUsersInfo(cursor):
+def getUsersInfo(table):
     # db = Conn(hostname,username,password,databasename)
     # cursor = db.cursor()
-    cursor.execute("SELECT * FROM PreStandardUsers WHERE category is NULL")
-    data = cursor.fetchall()
-    user = []
-    for d in data:
-        twitter_user = TwitterUsers.User(d[3],d[1],d[0],d[4],d[7],d[9],d[8],d[10],d[14])
-        user.append(twitter_user)
+    user = mydb.getUsersInfo(table)
     return user
 
-def getUserInfo(id,cursor):
-    cursor.execute("SELECT * FROM PreStandardUsers where userid = %s" % id)
-    d = cursor.fetchall()
-    twitter_user = TwitterUsers.User(d[0][3],d[0][1],d[0][0],d[0][4],d[0][7],d[0][9],d[0][8],d[0][10],d[0][14])
+def getUserInfo(id,table):
+    twitter_user = mydb.getUserInfo(id,table)
     return twitter_user
 
 def getUserTweets(userid,Search):
@@ -68,18 +26,26 @@ def getUserTweets(userid,Search):
     return tweets
 
 # 获取某一类别的用户
-def getUsersByCategory(category,cursor):
-    cursor.execute("select * from PreStandardUsers where category = %s" % category)
-    data = cursor.fetchall()
-    for d in data:
-        twitter_user = TwitterUsers.User(d[3],d[1],d[0],d[4],d[7],d[9],d[8],d[10],d[14])
-        user.append(twitter_user)
-    return user
+def getUsersByCategory(table,category):
+    users = mydb.getUsersByCategory(table,category)
+    return users
+
+# # 形成最后的标准人物样本库
+# def GenerateStandardUsers(cursor,userid):
+#     '''
+#
+#     :param cursor:
+#     :param userid:存储娱乐领域的用户的id
+#     :return:
+#     '''
+#     for id in userid:
+#         cursor.execute("insert into StandardUsers(name,screen_name,category,userid,location,created_at,description,statuses_count,followers_count,friends_count,favourites_count,lang,protected,time_zone,verified,geo_enabled) select name,screen_name,category,userid,location,created_at,description,statuses_count,followers_count,friends_count,favourites_count,lang,protected,time_zone,verified,geo_enabled from PreStandardUsers where userid = %s" % id)
+#     print "标准人物样本库生成完成!"
 
 # split Origin and RT
 def CalucateParameters(tweets):
     OTN = RTN = RTrtN = ORTN = OFavN = RTFavN = 0
-    if tweets == None:
+    if tweets.count() == None:
         return OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
     for tweet in tweets:
         # 转推
@@ -108,65 +74,92 @@ def CalucateInfluence(ORTN,OFavN,RTN,RTFavN):
 def CalucateTwitterInfluence(d_active,d_twitter):
     return 0.2 * d_active + 0.8 * d_twitter
 
-if __name__ == "__main__":
-    conn = MySQLdb.connect(
-        host='localhost',
-        port = 3306,
-        user='root',
-        passwd='123',
-        db ='TwitterUserInfo',
-    )
-    cursor = conn.cursor()
-
+# 对外接口计算用户影响力分数
+def CalucateUserInfluence(userid):
     # connect to mongodb localhost
-    client = MongoClient('127.0.0.1',27017)
-    users = getUsersInfo(cursor)
-    userid = []
-    for user in users:
-        userid.append(user.id)
-    print "用户id获取完成"
+    result = mongo.getTweets(userid)
+    user = getUserInfo(userid,table="StandardUsers")
+    OTN,RTN,ORTN,RTrtN,OFavN,RTFavN = CalucateParameters(result)
+    score = CalucateTwitterInfluence(CalucateActive(user,OTN,RTN),CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN))
 
-    # define the name of database
-    db = client.twitterForTestInflu
-    # tweets1 = db.tweets_10
-    # tweets2 = db.tweets_11
-    # tweets3 = db.tweets_12
-    # tweets = [tweets1,tweets2,tweets3]
-    tweet = db.PreStandardUsers
-    user_influ = {}
+    # 返回用户影响力分数
+    return score
 
-    # for user in users:
-    #     if user.id[:2] == "11":
-    #         tweet = tweets2
-    #     elif user.id[:2] == "12":
-    #         tweet = tweets3
-    #     else:
-    #         tweet = tweets1
-    #     if tweet.find({"user_id":long(user.id)}).count() > 0:
-    #         userid.append(user.id)
-    count = 0
-    print "开始计算用户影响力"
-    for id in userid:
-        # if id[:2] == "11":
-        #     result = tweets2.find({"user_id":long(id)})
-        # elif id[:2] == "12":
-        #     result = tweets3.find({"user_id":long(id)})
-        # else:
-        #     result = tweets1.find({"user_id":long(id)})
-        result = tweet.find({'user_id':long(id)})
-        user = getUserInfo(id,cursor)
-        OTN,RTN,ORTN,RTrtN,OFavN,RTFavN = CalucateParameters(result)
-        print OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
-        user_influ[id] = CalucateTwitterInfluence(CalucateActive(user,OTN,RTN),CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN))
-        count += 1
-        print "已计算%d个" % count
-    user_influ = sorted(user_influ.items(),key=lambda dic:dic[1],reverse=True)
-    # 将前三千人的name/userid以及screen_name写入文本文件中
-    print "开始将3000人id写入文本文件"
-    with open("/home/duncan/3000Famous","w") as f:
-        for dic in user_influ[:3000]:
-            f.write(dic[0])
-            f.write("\n")
-    cursor.close()
-    conn.commit()
-    conn.close()
+def test():
+    score = CalucateUserInfluence('29479000')
+    print  score
+test()
+# if __name__ == "__main__":
+#     conn = MySQLdb.connect(
+#         host='localhost',
+#         port = 3306,
+#         user='root',
+#         passwd='123',
+#         db ='TwitterUserInfo',
+#     )
+#     cursor = conn.cursor()
+#
+#     # connect to mongodb localhost
+#     client = MongoClient('127.0.0.1',27017)
+#     # 获取所有用户
+#     # users = getUsersInfo(cursor)
+#
+#     # 获取娱乐领域的用户
+#     users = getUsersByCategory("Entertainment",cursor)
+#     userid = []
+#     for user in users:
+#         userid.append(user.id)
+#     print "用户id获取完成"
+#
+#     # define the name of database
+#     db = client.twitterForTestInflu
+#     # tweets1 = db.tweets_10
+#     # tweets2 = db.tweets_11
+#     # tweets3 = db.tweets_12
+#     # tweets = [tweets1,tweets2,tweets3]
+#     tweet = db.PreStandardUsers
+#     user_influ = {}
+#
+#     # for user in users:
+#     #     if user.id[:2] == "11":
+#     #         tweet = tweets2
+#     #     elif user.id[:2] == "12":
+#     #         tweet = tweets3
+#     #     else:
+#     #         tweet = tweets1
+#     #     if tweet.find({"user_id":long(user.id)}).count() > 0:
+#     #         userid.append(user.id)
+#     count = 0
+#     print "开始计算用户影响力"
+#     for id in userid:
+#         # if id[:2] == "11":
+#         #     result = tweets2.find({"user_id":long(id)})
+#         # elif id[:2] == "12":
+#         #     result = tweets3.find({"user_id":long(id)})
+#         # else:
+#         #     result = tweets1.find({"user_id":long(id)})
+#         result = tweet.find({'user_id':long(id)})
+#         user = getUserInfo(id,cursor)
+#         OTN,RTN,ORTN,RTrtN,OFavN,RTFavN = CalucateParameters(result)
+#         print OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
+#         user_influ[id] = CalucateTwitterInfluence(CalucateActive(user,OTN,RTN),CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN))
+#         count += 1
+#         print "已计算%d个" % count
+#     user_influ = sorted(user_influ.items(),key=lambda dic:dic[1],reverse=True)
+#     # 针对某一类用户(针对娱乐界用户,选取前880个)
+#     en_users = user_influ[:880]
+#     en_users_id = []
+#     for user in en_users:
+#         en_users_id.append(user[0])
+#     GenerateStandardUsers(cursor,en_users_id)
+#
+#     # 针对所有用户
+#     # 将前三千人的name/userid以及screen_name写入文本文件中
+#     # print "开始将3000人id写入文本文件"
+#     # with open("/home/duncan/3000Famous","w") as f:
+#     #     for dic in user_influ[:3000]:
+#     #         f.write(dic[0])
+#     #         f.write("\n")
+#     cursor.close()
+#     conn.commit()
+#     conn.close()

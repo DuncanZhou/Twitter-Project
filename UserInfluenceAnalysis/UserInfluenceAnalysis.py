@@ -157,7 +157,7 @@ def getuMatrix(path,users):
         except Exception as e:
             print user.screen_name
     print "共计读入%d个用户" % count
-    return mat(uMatrix)
+    return uMatrix
 
 # 生成用户id和粉丝/关注人数比的字典
 def generateProportion(users):
@@ -214,7 +214,13 @@ def PageRank(uMatrix,fMatrix,d,PRMatrix,threshold,iterationN):
     iteration = 0
     rowN = NewPRMatrix.shape[0]
     while True:
-        NewPRMatrix = fMatrix + d * uMatrix * OldPRMatrix
+        # 将下面的公式转换一下
+        newPRMatrix = []
+        # NewPRMatrix = fMatrix + d * uMatrix * OldPRMatrix
+        for i in range(len(uMatrix)):
+            newPRMatrix.append(double(uMatrix[i] * OldPRMatrix * d + fMatrix[i,0]))
+        # print newPRMatrix
+        NewPRMatrix = mat(newPRMatrix).T
         flag = True
         iteration += 1
         if iteration == iterationN:
@@ -226,15 +232,16 @@ def PageRank(uMatrix,fMatrix,d,PRMatrix,threshold,iterationN):
         if flag == True:
             break
         OldPRMatrix = NewPRMatrix
+        print "迭代%d次" % iteration
     print "迭代次数%d" % iteration
-    return mat(NewPRMatrix.toarray())
+    return NewPRMatrix
 
 def CalucateUIPR(uMatrix,users):
     # 用户的screenname：IPR
     uiPR = {}
     i = 0
     for user in users:
-        screenname = user
+        screenname = user.screen_name
         uiPR[screenname] = uMatrix[i,0]
         i += 1
     # 按照影响力降序排列
@@ -285,13 +292,16 @@ if __name__ == '__main__':
     #     db ='TwitterUserInfo',
     # )
     # cursor = conn.cursor()
-    open_file = open(follower_dic_path + "followerdic.pickle","rb")
-    follower_dic = pickle.load(open_file)
-    open_file.close()
+
+    # 加载followers字典
+    # open_file = open(follower_dic_path + "followerdic.pickle","rb")
+    # follower_dic = pickle.load(open_file)
+    # open_file.close()
 
     # 测试followers字典
     # print follower_dic["30009639"]
     # print getFollowers("30009639",follower_dic)
+
     # 将用户持久化
     # users = getUsersInfo(cursor)
     # save_file = open(project_folder_path + "/users.pickle","wb")
@@ -305,35 +315,40 @@ if __name__ == '__main__':
     # updateFollower_dic("/home/duncan/TwitterProjectFolder/FollowerDic/followerdic.pickle","/home/duncan/TwitterProjectFolder/follower/famous_users_followers/",users)
 
     # 生成每个用户的follower矩阵
-    t = time.time()
-    getFollowerMatrix(follower_dic,users)
-    print "用时%fs" % (time.time() - t)
+    # t = time.time()
+    # getFollowerMatrix(follower_dic,users)
+    # print "用时%fs" % (time.time() - t)
 
+    # 将总的uMatrix保存,总的userMatrix是一个列表，每行是每个用户的followers的稀疏矩阵
+    # uMatrix = getuMatrix(user_matrix_path,users)
+    # save_file = open(user_matrix_path + "uMatrix.pickle","wb")
+    # pickle.dump(uMatrix,save_file)
+    # save_file.close()
+    # print uMatrix
 
     # 载入用户粉丝/关注比例字典
     # prodic = generateProportion(users)
-    # uPR = {}
-    # for user in users:
-    #     uPR[user.id] = 1
     # 直接计算PageRank
     # print PageRank(follower_dic,users,0.01,100,uPR,0.85,prodic)
 
     # 用户matrix载入
-    # uMatrix = csr_matrix(getuMatrix(user_matrix_path,users))
-    # save_file = open(user_matrix_path + "uMatrix.pickle","wb")
-    # pickle.dump(uMatrix,save_file)
-    # save_file.close()
+    # uPR = {}
+    # for user in users:
+    #     uPR[user.id] = 1
 
-    # 文件太大不适合序列化
-    # open_file = open(user_matrix_path + "uMatrix.pickle")
-    # uMatrix = csr_matrix(pickle.load(open_file))
-    # open_file.close()
-    # print "uMatrix 已保存"
+    # 加载uMatrix
+    open_file = open(user_matrix_path + "uMatrix.pickle")
+    uMatrix = pickle.load(open_file)
+    open_file.close()
+
+    # print uMatrix.toarray()
+    # print uMatrix
 
     # 矩阵方式计算PageRank
-    # fMatrix = mat([(1 - 0.85) / len(users) for i in range(len(users))]).T
-    # initPRMatrix = mat([1 for i in range(len(users))]).T
-    # print CalucateUIPR(PageRank(uMatrix,fMatrix,0.85,initPRMatrix,0.01,1000),users)
+    fMatrix = mat([(1 - 0.85) / len(users) for i in range(len(users))]).T
+    initPRMatrix = mat([1 for i in range(len(users))]).T
+    print CalucateUIPR(PageRank(uMatrix,fMatrix,0.85,initPRMatrix,0.01,120),users)
+
 
     # usermatrix,number = getFollowerMatrix(follower_dic,users)
 

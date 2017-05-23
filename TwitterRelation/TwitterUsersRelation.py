@@ -65,4 +65,4 @@ def SearchUsersByCategory(sname):
 if __name__ == '__main__':
     # 初始化操作,最开始执行一次
     # Initial()
-    pass
+    neo4j.InsertRel('DeptofDefense','SenSanders')
