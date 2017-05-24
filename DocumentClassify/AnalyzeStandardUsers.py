@@ -11,6 +11,8 @@ import os
 import sys
 sys.path.append("..")
 from MySQLInteraction import TwitterWithMysql as mydb
+import TwitterUsers
+
 from nltk.corpus import stopwords
 from nltk import word_tokenize
 import config
@@ -19,10 +21,10 @@ project_folder_path = config.project_folder_path
 Famous_tweets_path = project_folder_path + "/Famous_Tweets"
 TestTweets_path = project_folder_path + "/TwitterProject/DocumentClassify/TestTweets/"
 
-# 导入另一个文件夹下的脚本
-from sys import path
-path.append(project_folder_path + "/TwitterProject/TwitterUsers/")
-import TwitterUsers
+# # 导入另一个文件夹下的脚本
+# from sys import path
+# path.append(project_folder_path + "/TwitterProject/TwitterUsers/")
+# import TwitterUsers
 
 # hostname = "localhost"
 # username = "root"
@@ -30,17 +32,7 @@ import TwitterUsers
 # databasename = "TwitterUserInfo"
 
 
-
-# 读取停用词
-def getStopWords(path):
-    stopwords = set()
-    with open(path,"r") as f:
-        lines = f.readlines()
-    for line in lines:
-        stopwords.add(line.replace("\r\n","").rstrip())
-    return stopwords
-
-stopwords = getStopWords(config.stop_words_path)
+stopwords = config.stopwords
 
 class Famous:
     def __init__(self,name,screen_name,category):

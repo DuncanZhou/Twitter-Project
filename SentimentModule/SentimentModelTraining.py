@@ -10,13 +10,14 @@ from sklearn.naive_bayes import MultinomialNB,BernoulliNB
 from sklearn.linear_model import LogisticRegression,SGDClassifier
 from sklearn.svm import LinearSVC
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
+import config
+
 
 # 对一段文档建立特征
 def Word2Features(document,word_features):
     # document = document.decde('utf-8')
     words = word_tokenize(document,language='english')
-    words = set([w for w in words if w not in stopwords.words("english")])
+    words = set([w for w in words if w not in config.stopwords])
     features = {}
     for w in word_features:
         features[w] = (w in words)

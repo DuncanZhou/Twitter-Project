@@ -24,16 +24,7 @@ target_tweets_path = project_folder_path + "/TweetsSamples/"
 
 # usercandidate = []
 
-# 读取停用词
-def getStopWords(path):
-    stopwords = set()
-    with open(path,"r") as f:
-        lines = f.readlines()
-    for line in lines:
-        stopwords.add(line.replace("\r\n","").rstrip())
-    return stopwords
-
-stopwords = getStopWords(config.stop_words_path)
+stopwords = config.stopwords
 
 def PreProcess(text):
     # open_file = open(slang_file_path,"rb")

@@ -10,8 +10,9 @@ from MongoDBInteraction import TweetsWithMongo as mongo
 # 从mongodb中读出的日期是 "Fri Dec 16 04:22:58 +0000 2016"
 import datetime
 import SentimentAnalyze as Senti
+import config
 
-months = {'Jan':'1','Feb':'2','Mar':'3','Apr':'4','May':'5','Jun':'6','Jul':'7','Aug':'8','Sep':'9','Oct':'10','Nov':'11','Dec':'12'}
+months = config.months
 # 将字符串格式转换成可以转换成datetime的字符串格式
 def Str2Time(str):
     strs = str.split(" ")

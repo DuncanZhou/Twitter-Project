@@ -3,11 +3,12 @@
 '''@author:duncan'''
 
 from pymongo import MongoClient
+import config
 
 # 连接文档数据库
 def Conn():
     # connect to mongodb localhost
-    client = MongoClient('127.0.0.1',27017)
+    client = MongoClient(config.mongo_host,config.mongo_port)
     # define the name of database
     db = client.twitterForTestInflu
     return db

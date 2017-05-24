@@ -6,11 +6,12 @@
 
 
 from neo4j.v1 import GraphDatabase,basic_auth
+import config
 
 def Conn():
     # 加载驱动
     # 加密方式
-    driver = GraphDatabase.driver("bolt://localhost:7687",auth=basic_auth("neo4j","123"),encrypted=True)
+    driver = GraphDatabase.driver(config.neo_host,auth=basic_auth(config.neo_user,config.neo_passwd),encrypted=True)
     # 创建会话
     session = driver.session()
     return driver,session

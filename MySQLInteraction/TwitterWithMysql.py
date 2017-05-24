@@ -4,6 +4,7 @@
 
 # 与Msql交互层
 import MySQLdb
+import config
 import sys
 sys.path.append("..")
 from TwitterUsers import TwitterUsers
@@ -12,11 +13,11 @@ from TwitterUsers import TwitterUsers
 # 数据库连接
 def Connection():
     conn = MySQLdb.connect(
-        host='localhost',
-        port = 3306,
-        user='root',
-        passwd='123',
-        db ='TwitterUserInfo',
+        host=config.host,
+        port = config.port,
+        user=config.user,
+        passwd=config.passwd,
+        db =config.db,
     )
     # 全局变量cursor
     cursor = conn.cursor()

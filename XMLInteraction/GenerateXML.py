@@ -3,13 +3,13 @@
 '''@author:duncan'''
 
 import xml.dom.minidom
-import chardet
 import MySQLdb
 import sys
+import config
 reload(sys)
 sys.setdefaultencoding('utf8')
 import os
-project_folder_path = os.path.abspath(".." + os.path.sep + "..")
+project_folder_path = config.project_folder_path
 from sys import path
 path.append(project_folder_path + "/TwitterProject/TwitterUsers/")
 import TwitterUsers
