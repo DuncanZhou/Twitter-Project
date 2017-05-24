@@ -125,9 +125,9 @@ def Generation(pos):
         #     MultiCandidate.append(phase)
         else:
             i += 1
-        if len(multicandidate) != 0:
-            usercandidate += multicandidate
-        return usercandidate
+    if len(multicandidate) != 0:
+        usercandidate += multicandidate
+    return usercandidate
 
 '''
 步骤3：候选集排序
