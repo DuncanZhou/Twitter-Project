@@ -109,7 +109,9 @@ def SentimentWithTime(userid,period):
             pos += 1
         psychologic.append((res,confidence))
     if pos * 1.0 / len(period_tweets) > 0.5:
-        print "总体上该用户是正向情绪"
+        res =  "总体上该用户心理状态是正面的"
+    elif pos * 1.0 / len(period_tweets) == 0.5:
+        res = "总体上该用户心理状态是平稳的"
     else:
-        print "总体上该用户是负面情绪"
-    return starttime,psychologic
+        res = "总体上该用户心理状态是负面的"
+    return starttime,psychologic,res
