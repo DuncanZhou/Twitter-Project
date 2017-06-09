@@ -3,7 +3,7 @@
 '''@author:duncan'''
 
 class User:
-    def __init__(self,id,screen_name,name,location,statuses_count,friends_count,followers_count,favourites_count,verified,category):
+    def __init__(self,id,screen_name,name,location,statuses_count,friends_count,followers_count,favourites_count,verified,category,influenceScore,rank_influ,psy):
         self.id = id
         self.screen_name = screen_name
         self.name = name
@@ -14,6 +14,11 @@ class User:
         self.location = location
         self.verified = verified
         self.category = category
+        self.influenceScore = influenceScore
+        # rank_influ 1:低  2:中  3:高
+        self.rank_influ = rank_influ
+        # psy 1:正面 0:负面
+        self.psy = psy
 
     def getProportion(self):
         if self.friends_count != 0:
