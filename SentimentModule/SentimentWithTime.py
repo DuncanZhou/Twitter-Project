@@ -37,13 +37,11 @@ def CalcTime(date1,date2):
 def getTimeSequence(userid):
     count = 0
     Time = []
-    # 分为两个月一个周期
-    threshold = 60
+
     tweets = mongo.getTweets(userid)
     if tweets.count() == 0:
         print "没有推文"
         return
-    starttime = Str2Time(tweets[0]['created_at'])
     # 获取从抓取时间向前2个月的推文
     for tweet in tweets[1:]:
         # if(CalcTime(Str2Time(tweet['created_at']),starttime) > threshold):
@@ -52,8 +50,8 @@ def getTimeSequence(userid):
         count += 1
 
     days = CalcTime(Time[0],Time[len(Time) - 1])
-    print "相隔了%d天" % days
-    print "推文条数%d" % count
+    # print "相隔了%d天" % days
+    # print "推文条数%d" % count
     return Time
 
 # 以两个月为一个周期,获取周期性的心理状态
@@ -87,31 +85,41 @@ def getTweetsBy2Months(userid,period):
             period_tweets.append(temp_period_text)
             temp_period_text = ""
         count += 1
-    print "共有%d个周期" % len(period_tweets)
-    print "推文数%d条" % count
+    # 最后要把临时获取的推文加入
+    if(temp_period_text != ""):
+        period_tweets.append(temp_period_text)
+    # print "共有%d个周期" % len(period_tweets)
+    # print "推文数%d条" % count
     return starttime,period_tweets
 
 # 对外接口
 # 加入时间后的推文情感分类
-def SentimentWithTime(userid,period):
+def SentimentWithTime(userid,period=1):
     '''
 
     :param userid:用户id
-    :param period: 时间间隔的月数
-    :return:返回最开始推文起始时间和每个周期的心理状态以及置信度
+    :param period: 时间间隔的月数(默认参数1个月)
+    :return:返回最开始推文起始时间和每个周期的心理状态以及总体心理状态结果
     '''
     starttime,period_tweets = getTweetsBy2Months(userid,period)
     psychologic = []
-    pos = 0
+    neg = pos = 0
     for tweet in period_tweets:
         res,confidence = Senti.sentiment(tweet)
         if res == 'pos':
             pos += 1
-        psychologic.append((res,confidence))
+        else:
+            neg += 1
+        psychologic.append(res)
+
+    if (len(period_tweets) == 0):
+        res = 0
+        return starttime,psychologic,res
+
+    print pos * 1.0 / len(period_tweets)
     if pos * 1.0 / len(period_tweets) > 0.5:
-        res =  "总体上该用户心理状态是正面的"
-    elif pos * 1.0 / len(period_tweets) == 0.5:
-        res = "总体上该用户心理状态是平稳的"
-    else:
-        res = "总体上该用户心理状态是负面的"
+        res =  1
+    elif neg * 1.0 / len(period_tweets) >= 0.5:
+        res = -1
+
     return starttime,psychologic,res

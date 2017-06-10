@@ -17,7 +17,7 @@ import config
 
 
 project_path = config.project_path
-pickle_path = project_path + "/SentimentModule/pickle_algos"
+pickle_path = project_path + "/SentimentModule/senti_pickle_algos"
 
 
 # 读取停用词

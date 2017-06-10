@@ -43,7 +43,7 @@ def getUserInfo(id,table):
     conn,cursor = Connection()
     cursor.execute("SELECT * FROM %s where userid = '%s'" % (table,id))
     data = cursor.fetchall()
-    twitter_user = TwitterUsers.User(data[0]['userid'],data[0]['screen_name'],data[0]['name'],data[0]['location'],data[0]['statuses_count'],data[0]['friends_count'],data[0]['followers_count'],data[0]['favourites_count'],data[0]['verified'],data[0]['category'],data[0]['influenceScore'],data[0]['rank_influ'])
+    twitter_user = TwitterUsers.User(data[0]['userid'],data[0]['screen_name'],data[0]['name'],data[0]['location'],data[0]['statuses_count'],data[0]['friends_count'],data[0]['followers_count'],data[0]['favourites_count'],data[0]['verified'],data[0]['category'],data[0]['influenceScore'],data[0]['rank_influ'],data[0]['psy'],data[0]['psy_seq'],data[0]['psy_tweets_starttime'])
     Close(conn,cursor)
     return twitter_user
 
@@ -52,11 +52,11 @@ def getUsersInfo(table):
     # db = Conn(hostname,username,password,databasename)
     # cursor = db.cursor()
     conn,cursor = Connection()
-    cursor.execute("SELECT * FROM %s" % table)
+    cursor.execute("SELECT * FROM %s limit 310,2000" % table)
     data = cursor.fetchall()
     user = []
     for d in data:
-        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'])
+        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'])
         user.append(twitter_user)
     Close(conn,cursor)
     return user
@@ -68,7 +68,7 @@ def getUsersByCategory(table,category):
     cursor.execute("select * from '%s' where category = '%s'" % (table,category))
     data = cursor.fetchall()
     for d in data:
-        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'])
+        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'])
         users.append(twitter_user)
     Close(conn,cursor)
     return users
@@ -101,8 +101,17 @@ def getCategories(table):
     return categories,number
 
 # 更新用户的心理状态
-def updateUserPsy(table,userid,psy):
+def updateUserPsy(table,userid,psy,psy_seq,psy_tweets_starttime):
+    '''
+
+    :param table: 表名
+    :param userid: 用户id
+    :param psy: 近期心理状态结果(int)
+    :param psy_seq: 近期心理状态序列(字符串)
+    :param psy_tweets_starttime: 最新推文起始时间(为了方便,没有设置datetime格式,字符串格式)
+    :return:
+    '''
     conn,cursor = Connection()
-    sql = "update %s set psy = %d where userid = '%s'" % (table,psy,userid)
+    sql = "update %s set psy = %d,psy_seq = '%s',psy_tweets_starttime = '%s' where userid = '%s'" % (table,psy,psy_seq,psy_tweets_starttime,userid)
     cursor.execute(sql)
     Close(conn,cursor)

@@ -16,5 +16,8 @@ def Conn():
 # 根据用户id查找推文,userid是字符串格式
 def getTweets(userid):
     db = Conn()
-    results = db.PreStandardUsers.find({'user_id':long(userid)})
+    # mongodb中没有找到该用户推文,返回None
+    if(db.tweets.find({'user_id':long(userid)}).count() == 0):
+        return None
+    results = db.tweets.find({'user_id':long(userid)})
     return results

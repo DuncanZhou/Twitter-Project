@@ -6,7 +6,7 @@
 import os
 project_folder_path = os.path.abspath(".." + os.path.sep + "..")
 project_path = os.path.abspath("..")
-stop_words_path = project_path + "/resouce/stopwords.txt"
+stop_words_path = project_path + "/resource/stopwords.txt"
 
 # mysql配置
 host = "localhost"
@@ -26,7 +26,17 @@ neo_passwd = "123"
 
 # 参数配置
 months = {'Jan':'1','Feb':'2','Mar':'3','Apr':'4','May':'5','Jun':'6','Jul':'7','Aug':'8','Sep':'9','Oct':'10','Nov':'11','Dec':'12'}
+high_influence = 120
+medium_influence = 70
+rank_influence = {1:"较低",2:"中等",3:"较大"}
+psychological = {1:"正面",-1:"负面",0:"未知"}
 
+#多项式贝叶斯分类器/线性svm/随机森林/随机梯度下降/极端树
+mnb = "MultinomialNB"
+svm = 'LinearSVM'
+forest = 'RandomForest'
+sgd = 'SGD'
+etree = 'ExtraTree'
 
 # 资源配置
 # 读取停用词

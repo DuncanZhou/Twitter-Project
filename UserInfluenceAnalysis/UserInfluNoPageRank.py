@@ -44,6 +44,7 @@ def getUsersByCategory(table,category):
 
 # split Origin and RT
 def CalucateParameters(tweets):
+    count = 0
     OTN = RTN = RTrtN = ORTN = OFavN = RTFavN = 0
     if tweets.count() == None:
         return OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
@@ -58,12 +59,15 @@ def CalucateParameters(tweets):
             OTN += 1
             ORTN += tweet["retweet_count"]
             OFavN += tweet["favorite_count"]
+        count += 1
     # OriginNumber RTNumber
+    print "%d条推文" % count
     return OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
 
 # active
 def CalucateActive(user,OriginN,RTN):
-    d_active = 0.5 * math.log(OriginN + 1,math.e) + 0.3 * math.log(RTN + 1,math.e) + 0.2 * math.log(user.followers_count + 1,math.e)
+    # 调整粉丝数的权重,占活跃度的0.5,原推文和转推数分别是0.3和0.2
+    d_active = 0.3 * math.log(OriginN + 1,math.e) + 0.2 * math.log(RTN + 1,math.e) + 0.5 * math.log(user.followers_count + 1,math.e)
     return d_active
 
 # Influence
@@ -72,23 +76,27 @@ def CalucateInfluence(ORTN,OFavN,RTN,RTFavN):
 
 # twitter Influence
 def CalucateTwitterInfluence(d_active,d_twitter):
-    return 0.2 * d_active + 0.8 * d_twitter
+    print "活跃度%f" % d_active
+    print "影响度%f" % d_twitter
+    return (0.3 * d_active + 0.7 * d_twitter) * 10
 
 # 对外接口计算用户影响力分数
-def CalucateUserInfluence(userid):
+def CalucateUserInfluence(userid,table="StandardUsers"):
     # connect to mongodb localhost
     result = mongo.getTweets(userid)
-    user = getUserInfo(userid,table="StandardUsers")
+    user = getUserInfo(userid,table)
+    # print user.location
     OTN,RTN,ORTN,RTrtN,OFavN,RTFavN = CalucateParameters(result)
     score = CalucateTwitterInfluence(CalucateActive(user,OTN,RTN),CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN))
 
     # 返回用户影响力分数
     return score
 
+# 调用测试样例
 def test():
     score = CalucateUserInfluence('29479000')
-    print  score
-test()
+    print score
+# test()
 # if __name__ == "__main__":
 #     conn = MySQLdb.connect(
 #         host='localhost',

@@ -5,7 +5,7 @@
 import UserInfluNoPageRank as influ
 from MySQLInteraction import TwitterWithMysql as mysql
 import matplotlib.pyplot as plt
-
+import config
 
 def getUserScore(userid,table):
     '''
@@ -44,7 +44,7 @@ def Conclusion():
     plt.figure(figsize=(20,10))
     plt.bar(x,influence,facecolor='lightskyblue',align="center",edgecolor="white",label="low")
     plt.bar(x[6:11],influence[6:11],facecolor='yellowgreen',align='center',edgecolor='white',label="medium")
-    plt.bar(x[11:],influence[11:],facecolor='crimson',align='center',edgecolor='white',label="high")
+    plt.bar(x[11:],influence[11:],facecolor='coral',align='center',edgecolor='white',label="high")
     plt.legend(shadow=True)
     # 设置x轴标注
     plt.xticks(x,labels,rotation=30)
@@ -60,7 +60,37 @@ def Conclusion():
     plt.show()
     return influence
 
-print Conclusion()
+def RankInflu(table):
+    users = mysql.getUsersInfo(table)
+    count = 1
+    for user in users:
+        print "finished %d users" % count
+        count += 1
+        if(user.influenceScore < config.medium_influence):
+            mysql.updateUserInfluRank(table,user.id,1)
+        elif(user.influenceScore >= config.medium_influence and user.influenceScore < config.high_influence):
+            mysql.updateUserInfluRank(table,user.id,2)
+        else:
+            mysql.updateUserInfluRank(table,user.id,3)
+
+
+def DistributionOfStandardUsers(table):
+    labels,number = mysql.getCategories(table)
+    plt.figure(figsize=(20,10))
+    plt.bar([i for i in range(len(labels))],number,align='center',edgecolor="white",color="tomato")
+    plt.xticks([i for i in range(len(labels))],labels,fontsize=16)
+    # 加上柱形图上的y轴数据标注(b + 0.05表示在y值上方0.05处加上标注)
+    for (a,b) in zip([i for i in range(len(labels))],number):
+        plt.text(a,b + 0.05,b,ha='center',va='bottom',fontsize=16,color="brown")
+    plt.xlabel("category",fontsize=18)
+    plt.ylabel("the number of users",fontsize=18)
+    plt.title("Standard Users Distribution",fontsize=20)
+    plt.show()
+DistributionOfStandardUsers("StandardUsers")
+# getUsersScore("StandardUsers")
+# RankInflu("StandardUsers")
+
+# print Conclusion()
 # getUsersScore("StandardUsers")
 # getUsersScore("StandardUsers")
 # print getUserScore("129770778","twittercounter")

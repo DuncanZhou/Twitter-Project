@@ -123,5 +123,5 @@ def Training(data_set_path):
 
 
 
-# Training("/DocumentClassify/DataSet1")
+Training("/DocumentClassify/DataSet2")
 

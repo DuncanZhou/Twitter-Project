@@ -33,7 +33,7 @@ TestTweets_path = project_folder_path + "/TwitterProject/DocumentClassify/TestTw
 
 
 stopwords = config.stopwords
-
+Classifiers = [config.mnb,config.svm,config.forest,config.sgd,config.etree]
 class Famous:
     def __init__(self,name,screen_name,category):
         self.name = name
@@ -73,7 +73,6 @@ def GetClassifyResultsByAllTweets(tweets_path):
 # 并不是把推文全部作为输入,在去除推文中停用词并将所有单词作为输入
 def GetClassifyResultsByTF(users_id,tweet_mongo):
     # 返回四种分类器的结果
-    Classifiers = ['MultinomialNB','LinearSVM','RandomForest','SGD','ExtraTree']
     weight = [0.4,0.3,0.1,0.1,0.1]
     results = []
     multiclassifier_result = {}
@@ -141,9 +140,6 @@ def GetCategoryById(users):
     return category_dic
 
 if __name__ == '__main__':
-
-    # 分类器类型
-    Classifiers = ['MultinomialNB','LinearSVM','RandomForest','SGD','ExtraTree']
     start = time.time()
 
     # 配置Mongodb查询

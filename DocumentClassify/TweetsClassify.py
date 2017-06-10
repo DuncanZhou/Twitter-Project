@@ -2,11 +2,11 @@
 #-*-coding:utf-8-*-
 '''@author:duncan'''
 
-import os
 import pickle
+import config
 
-project_folder_path = os.path.abspath(".." + os.path.sep + "..")
-project_path = os.path.abspath("..")
+project_folder_path = config.project_folder_path
+project_path = config.project_path
 data_folder_path = "/TweetsSamples/"
 famouse_tweets_folder_path = project_folder_path + "/TweetsSamples/famous_users_tweets/"
 pickle_path = project_path + "/DocumentClassify/pickles/"
