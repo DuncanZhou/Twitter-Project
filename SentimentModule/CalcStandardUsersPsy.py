@@ -34,4 +34,5 @@ def calcpsy(table):
     print "负面心理的有%d个" % neg
     print "未知状态的有%d个" % unknown
 
-calcpsy("StandardUsers")
+# 全局计算所有人的心理状态
+# calcpsy("StandardUsers")
