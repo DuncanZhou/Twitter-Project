@@ -31,6 +31,7 @@ if __name__ == "__main__":
         metions,topics =  Extract(text)
         metions = sorted(metions.items(),key = lambda dic:dic[1],reverse = True)
         topics = sorted(topics.items(),key = lambda dic:dic[1],reverse = True)
+        # 输出前10的提及的人物screen_name和话题
         print metions[:10]
         print topics[:10]
 
