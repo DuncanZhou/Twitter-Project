@@ -21,3 +21,12 @@ def getTweets(userid):
         return None
     results = db.tweets.find({'user_id':long(userid)})
     return results
+
+# 返回推文文本
+def getUserTweets(userid):
+    db = Conn()
+    tweets = ""
+    result = db.tweets.find({"user_id":long(userid)})
+    for res in result:
+        tweets += res["text"]
+    return tweets

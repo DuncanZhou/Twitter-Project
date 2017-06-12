@@ -18,13 +18,6 @@ def getUserInfo(id,table):
     twitter_user = mydb.getUserInfo(id,table)
     return twitter_user
 
-def getUserTweets(userid,Search):
-    tweets = []
-    result = Search.find({"user_id":long(userid)})
-    for res in result:
-        tweets.append(res["text"])
-    return tweets
-
 # 获取某一类别的用户
 def getUsersByCategory(table,category):
     users = mydb.getUsersByCategory(table,category)

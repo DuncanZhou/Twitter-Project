@@ -2,36 +2,33 @@
 #-*-coding:utf-8-*-
 '''@author:duncan'''
 
-import os
 import re
 import nltk
 from pytagcloud import create_tag_image,make_tags
 import webbrowser
-import math
+import sys
+sys.path.append("..")
+from MongoDBInteraction import TweetsWithMongo as mongo
+from MySQLInteraction import TwitterWithMysql as mysql
 import time
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from numpy import *
 import config
+import pickle
 
 BeatFactor = 3000000
 
 project_path = config.project_path
 project_folder_path = config.project_folder_path
-followers_file_path = project_folder_path + "/TweetsSamples/"
-target_tweets_path = project_folder_path + "/TweetsSamples/"
 
 # usercandidate = []
 
 stopwords = config.stopwords
 
-def PreProcess(text):
-    # open_file = open(slang_file_path,"rb")
-    # slang = pickle.load(open_file)
-    # open_file.close()
-
-    # clear @/#/http
+# 推文切分为单词
+def Split(text):
     text = re.sub(r'[@|#][\d|\w|_]+|http[\w|:|.|/|\d]+',"",text)
     # print text
     wordslist = []
@@ -41,23 +38,59 @@ def PreProcess(text):
     # clear @/#/url/emotion
     for word in words:
         # count = 0
-        if word not in stopwords:
-            # if word in slang:
-            # 	count += 1
-            # 	print count
-            #     word = slang[word]
-            #     subwords = word.split(" ")
-            #     for subword in subwords:
-            #         if subword not in (stopwords.words("english") and twitter_stop_words):
-            #             # 转换成小写
-            #             wordslist.append(subword.lower())
-            # else:
-            if len(word) > 2 and word.isalpha():
-                wordslist.append(word.lower())
+        if word.isalpha() and word.lower() not in stopwords and len(word) > 2:
+            # word = word.lower()
+            wordslist.append(word)
+    return wordslist
+
+# 获取所有用户的单词列表,返回结果是每个用户的单词列表和单词集合
+def GenerateWords(table="StandardUsers"):
+    user_words_set = {}
+    userids = mysql.getUsersId(table)
+    count = 0
+    for id in userids:
+        # try:
+        # 获取用户推文
+        text = mongo.getUserTweets(id)
+        wordsList = Split(text)
+        wordsSet = set()
+        try:
+            for word in set(wordsList):
+                if word.isalpha():
+                    wordsSet.add(word.lower())
+        except Exception as e:
+            pass
+        user_words_set[id] = wordsSet
+        count += 1
+        print "finished %d users" % count
+        # except Exception as e:
+        #     print "lose user"
+        #     user_words_set[id] = set("")
+    # 持久化
+    save_file = open(config.standard_users_words_set_path,'wb')
+    pickle.dump(user_words_set,save_file)
+    save_file.close()
+    return user_words_set
+
+# 获取用户的词频集合,wordSet为全局变量
+try:
+    open_file = open(config.standard_users_words_set_path,'rb')
+    wordsSet = pickle.load(open_file)
+    open_file.close()
+except Exception as e:
+    # 如果文件不存在,则重新生成
+    wordsSet = GenerateWords()
+print "获取用户词频完毕"
+
+# 推文预处理
+def PreProcess(text):
+    # open_file = open(slang_file_path,"rb")
+    # slang = pickle.load(open_file)
+    # open_file.close()
+
+    wordslist = Split(text)
     try:
         pos = nltk.pos_tag(wordslist)
-    # wordlist = [ps.stem(w[0],w[1]) for w in pos]
-    # pos = nltk.pos_tag(wordslist)
     except Exception as e:
         pos = []
     return pos
@@ -76,9 +109,8 @@ def Generation(pos):
     # global usercandidate
     multicandidate = []
     lemmatizer = WordNetLemmatizer()
-    single_pattern = ["N","J","V"]
+    # single_pattern = ["N","J","V"]
     for w in pos:
-        word = ""
         # if w[1][0] in single_pattern:
         # if w[1][0] == 'V':
         #     # 排除前100常用的动词
@@ -89,30 +121,63 @@ def Generation(pos):
             word = lemmatizer.lemmatize(w[0])
         # else:
         #     word = lemmatizer.lemmatize(w[0],'a')
-            usercandidate.append(word)
+            if word not in stopwords:
+                usercandidate.append(word)
+
+    # 两个词的长度
+    if(len(pos) == 2 and pos[0][1][0] == 'J' and pos[1][1][0] == 'N'):
+        # 这边名词已经合成为短语加进去,所以单个名词集合除去单个名词
+        try:
+            usercandidate.remove(pos[1][0])
+        except Exception as e:
+            pass
+        phase = lemmatizer.lemmatize(pos[0][0],'a') + " " + lemmatizer.lemmatize(pos[1][0])
+        usercandidate.append(phase)
+        return usercandidate
+
     i = 0
     while(i < len(pos) - 2):
         phase = ""
         # verb + adj + n+ or verb n+
         if (pos[i])[1][0] == 'V' and (pos[i + 1][1][0] == 'N' or (pos[i + 1][1][0] == "J" and pos[i + 2][1][0] == "N")):
-            if pos[i + 1][1][0] == 'N':
+            if pos[i + 1][1][0] == 'J':
                 suffix = lemmatizer.lemmatize(pos[i + 1][0],'a')
             else:
                 suffix = lemmatizer.lemmatize(pos[i + 1][0],'n')
             phase += lemmatizer.lemmatize((pos[i])[0],'v') + " " + suffix
             i = i + 2
-            while(i < len(pos) and (pos[i])[1][0] == 'N'):
+            # 最多加两个名词
+            j = 1
+            while(i < len(pos) and (pos[i])[1][0] == 'N' and j != 2):
                 phase += " " + lemmatizer.lemmatize((pos[i])[0])
                 i += 1
+                j += 1
+            # 移除单个名词
+            try:
+                usercandidate.remove(lemmatizer.lemmatize((pos[i])[0]))
+            except Exception as e:
+                pass
             multicandidate.append(phase)
         # adj + n+
         elif(pos[i][1][0] == "J" and pos[i + 1][1][0] == "N"):
-            if((i !=0 and pos[i - 1 ][1][0] != "V") or i == 0):
-                phase +=lemmatizer.lemmatize((pos[i])[0],"a") + " " + lemmatizer.lemmatize((pos[i + 1])[0])
-                i += 2
-                while(i < len(pos) and (pos[i])[1][0] == 'N'):
-                    phase += " " + lemmatizer.lemmatize((pos[i])[0],"n")
-                    i += 1
+            phase +=lemmatizer.lemmatize((pos[i])[0],"a") + " " + lemmatizer.lemmatize((pos[i + 1])[0])
+            # 移除单个名词
+            try:
+                usercandidate.remove(lemmatizer.lemmatize((pos[i + 1])[0]))
+            except Exception as e:
+                pass
+            i += 2
+            j = 1
+            while(i < len(pos) and (pos[i])[1][0] == 'N' and j != 2):
+                phase += " " + lemmatizer.lemmatize((pos[i])[0])
+                # 移除单个名词
+                try:
+                    usercandidate.remove(lemmatizer.lemmatize((pos[i])[0]))
+                except Exception as e:
+                    pass
+                i += 1
+                j += 1
+
             multicandidate.append(phase)
         # n n+
         # elif(pos[i][1][0] == "N" and pos[i + 1][1][0] == "N"):
@@ -151,52 +216,48 @@ def CalculateTF(usercandidate):
     # 输出前100个兴趣候选集
     return vacdic[:50]
 
-def getUserTopInterest(path,screen_name):
+# 代码重构,直接从mongo数据库中读取推文
+def getUserTopInterest(userid):
     # global usercandidate
     usercandidate = []
-    with open(path + screen_name,"r") as f:
-        lines = f.readlines()
-        for line in lines:
-            # 移除回复/对话的推文 （是以@XXXX开头）
-            if re.match(r"""^["|.]?@[\w|_]+""",line) == None:
-                line.replace("\n","")
-                # print "user tweet id is %d" % user_tweet_id
-                res = Generation(PreProcess(line.decode("utf-8")))
-                # Generation(PreProcess(line.decode("utf-8")))
-                if res != None:
-                    usercandidate += res
+    # 获取该用户的推文
+    tweets = mongo.getUserTweets(userid)
+    # 移除回复/对话的推文 （是以@XXXX开头）
+    # print "user tweet id is %d" % user_tweet_id
+    res = Generation(PreProcess(tweets))
+    # Generation(PreProcess(line.decode("utf-8")))
+    if res != None:
+        usercandidate += res
     usercandidate = CalculateTF(usercandidate)
     return usercandidate
 
 '''
-步骤4:得到目标用户候选集后，在其Followers中计算TFIDF值
+步骤4:得到目标用户候选集后，在其它用户中计算TFIDF值
 '''
-def CalculateTFIDF(usercandidate,followers_file_path):
-    followers_tweets = os.listdir(followers_file_path)
-    userNumber = len(followers_tweets)
-    print "该用户有%d个粉丝,现在开始计算" % (userNumber - 1)
+def CalculateTFIDF(usercandidate,user_id,table="StandardUsers"):
+    # 获取用户的所有id
+    userids = mysql.getUsersId(table)
+    userNumber = len(userids)
+    # print "该用户有%d个用户,现在开始计算" % (userNumber - 1)
     tfidf = [1 for i in range(50)]
     # for i in range(100):
     #     tfidf.append(1)
     count = 0
-    for follower in followers_tweets:
-        if os.path.isfile(followers_file_path + follower) == False:
+    for userid in userids:
+        if userid == user_id:
             continue
-        print "check follower %s, %d left" % (follower,userNumber - count)
-        with open(followers_file_path + follower) as f:
             # lines = f.readlines()
-            text = f.read()
-            id = 0
-            for candidate in usercandidate:
-                # for line in lines:
-                try:
-                    # if text.find(candidate[0]):
-                    if re.search(" " + candidate[0] + "[^\w]?",text) != None:
-                        tfidf[id] += 1
-                        break
-                except Exception as e:
-                    pass
-                id += 1
+        id = 0
+        for candidate in usercandidate:
+            # for line in lines:
+            # try:
+                # if text.find(candidate[0]):
+                # if re.search(" " + candidate[0] + "[^\w]?",text) != None:
+            if candidate[0] in wordsSet[userid]:
+                tfidf[id] += 1
+            # except Exception as e:
+            #     pass
+            id += 1
         count += 1
     id = 0
     for uc in usercandidate:
@@ -261,7 +322,7 @@ def CalculateTextRank(ucMatrix,threshold,dampFactor,idf,InitTRMatrix):
             break
         # print iteration
         oldMatrix = TRMatrix
-    print "the number of iteration is %d " % iteration
+    # print "the number of iteration is %d " % iteration
     return TRMatrix
 
 def CalucateUCTR(usercandidate,ucTRMatrix):
@@ -274,33 +335,34 @@ def CalucateUCTR(usercandidate,ucTRMatrix):
         ucTR[candidate] = TR
     # 按照ucTR的键值排序
     ucTR = sorted(ucTR.items(),key = lambda dic:dic[1],reverse = True)
-    print ucTR[:10]
+    # print ucTR[:10]
     ucTR10,ucTR50 = ucTR[:10],ucTR[:50]
     return ucTR10,ucTR50
 
-def ProcessBio(user_name):
-    pass
+def ProcessBio(userid,table="StandardUsers"):
+    description = mysql.getUserDescription(table,userid)
+    results = Generation(PreProcess(description))
+    return results
 
-def GenerateTargetUserInterest(Target_name,path,followers_path):
+def GenerateTargetUserInterest(Target_userid):
     # 初始矩阵设为权值都为1的矩阵
     TR = [1 for i in range(50)]
     InitTRMatrix = mat(TR)
 
-    target_user_name = Target_name
-    steponetime = time.time()
-    target_user_candidate = getUserTopInterest(path,target_user_name)
-    steptwotime = time.time()
-    print "第一步计算用户兴趣候选集,用时 %f s" % (steptwotime - steponetime)
-    print "正在计算TFIDF,大约需要几分钟"
-    idf = CalculateTFIDF(target_user_candidate,followers_path)
-    print "第二步计算用户TFIDF特征,用时 %f s" % (time.time() - steptwotime)
-    print "开始TextRank迭代计算用户兴趣候选集排序,计算中"
-    trstarttime = time.time()
+    # steponetime = time.time()
+    target_user_candidate = getUserTopInterest(Target_userid)
+    # steptwotime = time.time()
+    # print "第一步计算用户兴趣候选集,用时 %f s" % (steptwotime - steponetime)
+    # print "正在计算TFIDF,大约需要几分钟"
+    idf = CalculateTFIDF(target_user_candidate,Target_userid)
+    # print "第二步计算用户TFIDF特征,用时 %f s" % (time.time() - steptwotime)
+    # print "开始TextRank迭代计算用户兴趣候选集排序,计算中"
+    # trstarttime = time.time()
     uiMatrix = CalculateWeight(target_user_candidate)
     ucTRMatrix = CalculateTextRank(uiMatrix,0.0001,0.85,idf,InitTRMatrix)
     Interest10,Interest50 = CalucateUCTR(target_user_candidate,ucTRMatrix)
-    trendtime = time.time()
-    print "迭代过程耗时 %f s" % (trendtime - trstarttime)
+    # trendtime = time.time()
+    # print "迭代过程耗时 %f s" % (trendtime - trstarttime)
     return Interest10,Interest50
 
 # 测试标签云库，将用户兴趣集可视化
@@ -315,29 +377,63 @@ def GenerateTagCloud(InterestSorted,name):
 
 
 # 对外接口,返回该用户前10个兴趣标签
-def GenerateInterestsWithFollowers(screen_name,path=target_tweets_path,followers_path=followers_file_path):
+def GenerateInterestsWithFollowers(userid):
     '''
     :param path: 该用户推文路径
     :param screen_name: 该用户screen_name
     :param followers_path: 该用户粉丝们的推文路径
     :return:
     '''
-    Interest10,Interest50 = GenerateTargetUserInterest(screen_name,path,followers_path)
+    Interest10,Interest50 = GenerateTargetUserInterest(userid)
     # 将50个兴趣标签生成TagCloud
-    GenerateTagCloud(Interest50,screen_name)
+    # GenerateTagCloud(Interest50,userid)
     return Interest10
 
 # 对外接口,返回该用户前10个兴趣标签,但不在粉丝中TextRank排序
-def GenerateInterestsWithTF(screen_name,path=target_tweets_path):
+def GenerateInterestsWithTF(userid):
     '''
     :param path: 该用户推文路径
     :param screen_name: 该用户screen_name
     :param followers_path: 该用户粉丝们的推文路径
     :return:
     '''
-    Interest10 = getUserTopInterest(path,screen_name)[:10]
+    Interest10 = getUserTopInterest(userid)[:10]
     return Interest10
 
+# 生成所有用户的兴趣标签
+def GenerateAllUsersInterestTags(table="StandardUsers"):
+    users = mysql.getUsersInfo(table)
+    count = 0
+    loss = 0
+    for user in users:
+        try:
+            interests = GenerateInterestsWithFollowers(user.id)
+            description = ProcessBio(user.id)
+            interests = map(lambda interest:interest[0],interests)
+            # 把简介加入到兴趣标签中
+            interests += description
+            interests = ",".join(interests)
+            print "%s:" % user.id
+            print interests
+            # 写入数据库中
+            mysql.updateUserInterest(table,user.id,interests.encode('utf-8'))
+        except Exception as e:
+            loss += 1
+            print "lose userid:%s" % user.id
+            print "loss %d users" % loss
+        count += 1
+        print "finished %d users"  % count
+
+# 样例
+starttime = time.time()
+# 生成所有标准人物样本库中人物的兴趣爱好标签
+GenerateAllUsersInterestTags()
+endtime = time.time()
+print "used %f seconds" % endtime - starttime
+# print GenerateInterestsWithTF("10126672")
+# print PreProcess("China is a nice country")
+# print mysql.getUserInfo('104557267',"StandardUsers")
+# print mysql.getUserDescription("StandardUsers",'10126672')
 
 
 

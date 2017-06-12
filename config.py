@@ -7,6 +7,7 @@ import os
 project_folder_path = os.path.abspath(".." + os.path.sep + "..")
 project_path = os.path.abspath("..")
 stop_words_path = project_path + "/resource/stopwords.txt"
+standard_users_words_set_path = project_path + "/resource/words_set.pickle"
 
 # mysql配置
 host = "localhost"
