@@ -7,6 +7,8 @@ import nltk
 from pytagcloud import create_tag_image,make_tags
 import webbrowser
 import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 sys.path.append("..")
 from MongoDBInteraction import TweetsWithMongo as mongo
 from MySQLInteraction import TwitterWithMysql as mysql
@@ -17,6 +19,7 @@ from nltk.stem import WordNetLemmatizer
 from numpy import *
 import config
 import pickle
+import chardet
 
 BeatFactor = 3000000
 
@@ -34,7 +37,7 @@ def Split(text):
     wordslist = []
     if text == "" or text == None:
         return []
-    words = word_tokenize(text)
+    words = word_tokenize(text.encode('utf-8').decode('Latin-1'))
     # clear @/#/url/emotion
     for word in words:
         # count = 0
@@ -119,9 +122,12 @@ def Generation(pos):
         #         continue
         if(w[1][0] == 'N'):
             word = lemmatizer.lemmatize(w[0])
+            lower_set = set()
         # else:
         #     word = lemmatizer.lemmatize(w[0],'a')
-            if word not in stopwords:
+            if word.lower() not in stopwords and word.lower() not in lower_set:
+                # 去除重复的大小写名词
+                lower_set.add(word.lower())
                 usercandidate.append(word)
 
     # 两个词的长度
@@ -385,9 +391,15 @@ def GenerateInterestsWithFollowers(userid):
     :return:
     '''
     Interest10,Interest50 = GenerateTargetUserInterest(userid)
+    description = ProcessBio(userid)
+    interests = map(lambda interest:interest[0],Interest10)
+    # 把简介加入到兴趣标签中,去除重复的
+    interests = set(interests)
+    interests.union(set(description))
+    interests = ",".join(interests)
     # 将50个兴趣标签生成TagCloud
     # GenerateTagCloud(Interest50,userid)
-    return Interest10
+    return interests
 
 # 对外接口,返回该用户前10个兴趣标签,但不在粉丝中TextRank排序
 def GenerateInterestsWithTF(userid):
@@ -398,7 +410,13 @@ def GenerateInterestsWithTF(userid):
     :return:
     '''
     Interest10 = getUserTopInterest(userid)[:10]
-    return Interest10
+    description = ProcessBio(userid)
+    interests = map(lambda interest:interest[0],Interest10)
+    # 把简介加入到兴趣标签中,去除重复的
+    interests = set(interests)
+    interests.union(set(description))
+    interests = ",".join(interests)
+    return interests
 
 # 生成所有用户的兴趣标签
 def GenerateAllUsersInterestTags(table="StandardUsers"):
@@ -408,11 +426,6 @@ def GenerateAllUsersInterestTags(table="StandardUsers"):
     for user in users:
         try:
             interests = GenerateInterestsWithFollowers(user.id)
-            description = ProcessBio(user.id)
-            interests = map(lambda interest:interest[0],interests)
-            # 把简介加入到兴趣标签中
-            interests += description
-            interests = ",".join(interests)
             print "%s:" % user.id
             print interests
             # 写入数据库中
@@ -422,14 +435,18 @@ def GenerateAllUsersInterestTags(table="StandardUsers"):
             print "lose userid:%s" % user.id
             print "loss %d users" % loss
         count += 1
-        print "finished %d users"  % count
+        print "finished %d users" % count
 
 # 样例
-starttime = time.time()
-# 生成所有标准人物样本库中人物的兴趣爱好标签
-GenerateAllUsersInterestTags()
-endtime = time.time()
-print "used %f seconds" % endtime - starttime
+def test():
+    starttime = time.time()
+    # 生成所有标准人物样本库中人物的兴趣爱好标签
+    GenerateAllUsersInterestTags()
+    endtime = time.time()
+    print "used %f seconds" % (endtime - starttime)
+
+test()
+
 # print GenerateInterestsWithTF("10126672")
 # print PreProcess("China is a nice country")
 # print mysql.getUserInfo('104557267',"StandardUsers")

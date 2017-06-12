@@ -150,3 +150,15 @@ def updateUserInterest(table,userid,interest):
     sql = "update %s set interest_tags = '%s' where userid = '%s'" % (table,interest,userid)
     cursor.execute(sql)
     Close(conn,cursor)
+
+# 获取兴趣标签为空的用户id
+def getEmptyInterestUsers(table):
+    userids = []
+    conn,cursor = Connection()
+    sql = "select userid from %s where interest_tags is null" % table
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for d in data:
+        userids.append(d['userid'])
+    Close(conn,cursor)
+    return userids
