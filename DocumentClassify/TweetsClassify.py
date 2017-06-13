@@ -4,6 +4,8 @@
 
 import pickle
 import config
+import os
+import TweetsClassifyTraining
 
 project_folder_path = config.project_folder_path
 project_path = config.project_path
@@ -25,6 +27,10 @@ def Classify(text,Classifier):
     txt = []
     # print text
     txt.append(text)
+
+    # 如果模型持久化文件不存在则需要先训练
+    if len(os.listdir(config.project_path + "/DocumentClassify/pickles/")) <= 6:
+        TweetsClassifyTraining.Training()
 
     # 测试数据转化为特征向量
     open_file = open(count_vect_path)

@@ -28,10 +28,10 @@ def getTweets(userid):
     return results
 
 # 返回推文文本
-def getUserTweets(userid):
+def getUserTweets(userid,collection_name="StandardUsers"):
     db = Conn()
     tweets = ""
-    result = db.tweets.find({"user_id":long(userid)})
+    result = db[collection_name].find({"user_id":long(userid)})
     for res in result:
         tweets += res["text"]
     return tweets
@@ -45,7 +45,7 @@ def InsertStandardUsers(table):
     count = 0
     for user in users:
         data = {}
-        data['user_id'] = user.id
+        data['user_id'] = (long)(user.id)
         data['screen_name'] = user.screen_name
         data['name'] = (user.name).decode("Latin-1").encode('utf-8')
         data['location'] = (user.location).decode("Latin-1").encode('utf-8')
@@ -88,6 +88,6 @@ def getUserById(userid,collection_name="StandardUsers"):
     '''
     db = Conn()
     collection = db[collection_name]
-    d = collection.find({"user_id":userid})
+    d = collection.find({"user_id":long(userid)})
     twitter_user = TwitterUsers.User(d[0]['user_id'],d[0]['screen_name'],d[0]['name'],d[0]['location'],d[0]['statuses_count'],d[0]['friends_count'],d[0]['followers_count'],d[0]['favourites_count'],d[0]['verified'],d[0]['category'],d[0]['influenceScore'],d[0]['rank_influ'],d[0]['psy'],d[0]['psy_seq'],d[0]['psy_tweets_starttime'],d[0]['interest_tags'],d[0]['description'],d[0]['crawler_date'])
     return twitter_user

@@ -3,6 +3,7 @@
 '''@author:duncan'''
 
 import os
+import config
 import pickle
 from sklearn import datasets
 from sklearn.feature_extraction.text import CountVectorizer
@@ -20,7 +21,7 @@ from sklearn.svm import SVC
 '''
 装载训练集
 '''
-project_path = os.path.abspath("..")
+project_path = config.project_path
 piclke_path = project_path + "/DocumentClassify/pickles/"
 '''
 BCC分类：business/entertainment/politics/sport/technology
@@ -33,7 +34,7 @@ DataSet4 是 CNN + BCC新闻数据集(CNN填补BCC没有的分类)
 DataSet5 是 CNN新闻 + BCC新闻 + 推文数据集(融合)
 '''
 
-def Training(data_set_path):
+def Training(data_set_path=config.project_path + "/DocumentClassify/DataSet2"):
     print "------------------------------------------开始读入训练集--------------------------------------"
     training_set_path = project_path + data_set_path
     # print training_set_path
@@ -123,5 +124,5 @@ def Training(data_set_path):
 
 
 
-Training("/DocumentClassify/DataSet2")
+# Training("/DocumentClassify/DataSet2")
 

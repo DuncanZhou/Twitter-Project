@@ -1,25 +1,20 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
 '''@author:duncan'''
-from pymongo import MongoClient
-import re
 
+import re
 import time
-import TweetsClassify
-import TweetsClassifyTraining
-import os
 import sys
 sys.path.append("..")
-from MySQLInteraction import TwitterWithMysql as mydb
-import TwitterUsers
-
+from MySQLInteraction import TwitterWithMysql as mysql
+from MongoDBInteraction import TweetsWithMongo as mongo
+import config
+import TweetsClassify
 from nltk.corpus import stopwords
 from nltk import word_tokenize
-import config
+import pickle
 
 project_folder_path = config.project_folder_path
-Famous_tweets_path = project_folder_path + "/Famous_Tweets"
-TestTweets_path = project_folder_path + "/TwitterProject/DocumentClassify/TestTweets/"
 
 # # 导入另一个文件夹下的脚本
 # from sys import path
@@ -34,45 +29,10 @@ TestTweets_path = project_folder_path + "/TwitterProject/DocumentClassify/TestTw
 
 stopwords = config.stopwords
 Classifiers = [config.mnb,config.svm,config.forest,config.sgd,config.etree]
-class Famous:
-    def __init__(self,name,screen_name,category):
-        self.name = name
-        self.screen_name = screen_name
-        self.category = category
-
-    def __str__(self):
-        return "姓名: %s   screen_name: %s   类别: %s" % (self.name,self.screen_name,self.category)
-# 获取用户
-def getStandardUsers(table):
-    users = mydb.getUsersInfo(table)
-    return users
-
-# 使用除回复性其他推文作为输入
-def GetClassifyResultsByAllTweets(tweets_path):
-
-    '''
-    :param tweets_path: 推文所在路径
-    :return: 返回字典 格式:{screen_name:category}
-    '''
-    resdic = {}
-    snames = os.listdir(tweets_path)
-    for name in snames:
-        text = ""
-        with open(tweets_path + "/" + name,"r") as f:
-            lines = f.readlines()
-            for line in lines:
-                # 移除回复性推文,看结果是否能提升
-                if re.match(r"""^["|.]?@[\w|_]+""",line) == None:
-                    text += line
-            # text = f.read()
-            res = TweetsClassify.Classify(text)
-            # print "%s ==> %s" % (name,res)
-            resdic[name] = res
-    return resdic
 
 # 并不是把推文全部作为输入,在去除推文中停用词并将所有单词作为输入
-def GetClassifyResultsByTF(users_id,tweet_mongo):
-    # 返回四种分类器的结果
+def GetClassifyResultsByWords(users_id,collection_name="tweets"):
+    # 四种分类器的权值
     weight = [0.4,0.3,0.1,0.1,0.1]
     results = []
     multiclassifier_result = {}
@@ -82,19 +42,16 @@ def GetClassifyResultsByTF(users_id,tweet_mongo):
     # SGD_resdic = {}
     # ExtraTree_resdic = {}
 
-    # 从mongodb中根据user_id读取推文
+    count = 0
     for id in users_id:
-        tweets = tweet_mongo.find({'user_id':long(id)})
-        text = ""
-        # 获取该用户所有推文,并处理
-        for tweet in tweets:
-            text += tweet['text']
+        # 获取用户推文
+        text = mongo.getUserTweets(id,collection_name)
         # 删除推文中@的人
         re.sub(r"""\n@.+"""," ",text)
         # words = word_tokenize(text.decode("utf-8"))
         words = word_tokenize(text)
         # 判断是否是单词,去除停用词
-        wordlist = [word for word in words if word.isalpha() and word not in stopwords]
+        wordlist = [word for word in words if word.isalpha() and word.lower() not in stopwords]
 
         # 以下步骤统计词频,由于统计词频效果不好,故舍弃
         # wordset = set(wordlist)
@@ -107,10 +64,8 @@ def GetClassifyResultsByTF(users_id,tweet_mongo):
         # 合并成文本
         # text = " ".join(lastwords)
         text = " ".join(wordlist)
-
-
         # 单模型
-        MultinomialNB_res = TweetsClassify.Classify(text,"MultinomialNB")
+        MultinomialNB_res = TweetsClassify.Classify(text,config.mnb)
     #     LinearSVM_res = TweetsClassify.Classify(text,"LinearSVM")
     #     RandomForest_res = TweetsClassify.Classify(text,"RandomForest")
     #     SGD_res = TweetsClassify.Classify(text,"SGD")
@@ -130,6 +85,8 @@ def GetClassifyResultsByTF(users_id,tweet_mongo):
         # 多模型融合
         result = TweetsClassify.Classify_MultiModels(text,Classifiers,weight)
         multiclassifier_result[id] = result
+        count += 1
+        print "finished %d users" % count
     return multiclassifier_result,MultinomialNB_resdic
 
 # 从mysql中查询用户的分类形成字典返回
@@ -139,163 +96,118 @@ def GetCategoryById(users):
         category_dic[user.id] = user.category
     return category_dic
 
-if __name__ == '__main__':
-    start = time.time()
+# 在结果中计算某一类别的人数
+def calcCategoryN(results,category):
+    number = 0
+    for key in results.keys():
+        if results[key] == category:
+            number += 1
+    return number
 
-    # 配置Mongodb查询
-    client = MongoClient('127.0.0.1',27017)
-    db = client.twitterForTestInflu
-    tweet = db.PreStandardUsers
+# 在结果中计算某一类别中正确的个数
+def calcCategoryCorrectN(results,category,ground_truth):
+    number = 0
+    for key in results:
+        if results[key] == category and results[key] == ground_truth[key]:
+            number += 1
+    return number
 
-    # # Read from xls file
-    # users = ReadFromXls()
-    # # Insert into db
-    # InsertIntodb(cursor,users)
+# 计算每个领域的准确率和召回率
+def Accuracy(table="StandardUsers"):
+    StandardUsers = mysql.getUsersInfo(table)
+    categories = mysql.getCategoriesAndNumber(table)
 
-    # 获取所有名人
-    # users = getUsers(cursor)
-
-    # 获取标准人物样本库中的用户
-    StandardUsers = getStandardUsers('StandardUsers')
     # 将用户的id保存
-
-
     StandardUsers_id = []
-    no_tweets_id = []
-    # i = 0
+
     for user in StandardUsers:
         StandardUsers_id.append(user.id)
-        # tweets = tweet.find({'user_id':long(user.id)})
-    #     i += 1
-    #     print i
-    #     text = ""
-    #     for t in tweets:
-    #         text += t['text']
-    # print no_tweets_id
-    # sys.exit(0)
-
-#------------------------------------------------选择训练集训练--------------------------------
-    '''
-    BCC分类：business/entertainment/politics/sport/technology
-    CNN分类：agriculture/economy/education/entertainment/military/politics/religion/sports/technology
-
-    DataSet1 是 CNN + BCC新闻数据集(分类融合起来)
-    DataSet2 是 BCC新闻数据集(加了维基词条的一些文章,加了CNN的一些文本,结果有提升)
-    DataSet3 是 CNN新闻数据集
-    DataSet4 是 CNN + BCC新闻数据集(CNN填补BCC没有的分类)
-    DataSet5 是 CNN新闻 + BCC新闻 + 推文数据集(融合)
-    '''
-    # 用名人推文来测试
-    # for i in range(1,6):
-    #     data_set_path = "/DocumentClassify/DataSet%s" % (str(i))
-    #     TweetsClassifyTraining.Training(data_set_path)
-    #
-    #     #------------------------------------------------进行测试--------------------------------
-    #     # 以去除回复性推文作为输入
-    #     # resdic =  GetClassifyResultsByAllTweets(Famous_tweets_path)
-    #
-    #     # 以词频单词作为输入
-    #     resdic =  GetClassifyResultsByTF(Famous_tweets_path)
-    #
-    #     # 将resdic分类结果写入文件
-    #     with open("/home/duncan/DataSet%d-Results" % i,"w") as f:
-    #         for key in resdic.keys():
-    #             for user in users:
-    #                 if user.screen_name == key:
-    #                     f.write(user.name + "  ==>  " + "分类器分类结果: " + resdic[key] + "  ==>  " + "正确结果: " + user.category)
-    #                     f.write("\n")
-    #                     break
-    #     #------------------------------------------------计算分类精度--------------------------------
-    #     accuracy = TweetsClassify.Accuracy(resdic,users)
-    #     print "使用DataSet%d分类结果:共%d个名人,分类准确率为%f" % (i,len(resdic),accuracy)
-    #     print "-------------------------------------------------------------------------------------------"
-    data_set_path = "/DocumentClassify/DataSet2"
-    # 已经训练好了模型则不需要再训练
-    TweetsClassifyTraining.Training(data_set_path)
-
-    #------------------------------------------------进行测试--------------------------------
-    # 以去除回复性推文作为输入
-    # resdic =  GetClassifyResultsByAllTweets(Famous_tweets_path)
-
-    # 以词频单词作为输入
-    print "----------------------------开始分类------------------------------------------------"
-
-    # -------------------------------------------------------------------------------------------------
-    # 获取用户的类别
+    # ground_truth
     category_dic = GetCategoryById(StandardUsers)
 
-    # # 单模型
-    # results = GetClassifyResultsByTF(StandardUsers_id,tweet)
-    #
-    # # 将resdic分类结果写入文件
-    # for (res,classifier) in zip(results,Classifiers):
-    #     # res是每个分类器的结果字典
-    #     with open("/home/duncan/%s-Results" % classifier,"w") as f:
-    #         for key in res.keys():
-    #             for user in StandardUsers:
-    #                 if user.id == key:
-    #                     f.write(user.id + "  ==>  " + "分类器分类结果: " + res[key] + "  ==>  " + "正确结果: " + user.category)
-    #                     f.write("\n")
-    #                     break
-    # #------------------------------------------------计算分类精度--------------------------------
-    #     accuracy = TweetsClassify.Accuracy(res,category_dic)
-    #     print "分类结果:%s分类器:共%d个名人,分类准确率为%f" % (classifier,len(res),accuracy)
-    # ---------------------------------------------------------------------------------------------------------
+    # 采用预处理后的推文作为输入
+    MultiModels_results,Multinomial_results = GetClassifyResultsByWords(StandardUsers_id)
+    save_file = open("results.pickle","wb")
+    pickle.dump(Multinomial_results,save_file)
+    save_file.close()
 
-    # 多模型融合分类
-    # ---------------------------------------------------------------------------------------------------------
-    MultiModels_results,Multinomial_results = GetClassifyResultsByTF(StandardUsers_id,tweet)
+    categories_sprecision = {}
+    categories_mprecision = {}
+    categories_srecall = {}
+    categories_mrecall = {}
+    for category in categories.keys():
+        # 计算在结果中共有多少该类别
+        number_in_mclassify = calcCategoryN(MultiModels_results,category)
+        number_in_sclassify = calcCategoryN(Multinomial_results,category)
 
-    # 将多项式分类器分类结果写入文件
-    with open("/home/duncan/Multinomial_NB_Classifier-results",'w') as f:
-        for key in Multinomial_results.keys():
-            for user in StandardUsers:
-                if user.id == key:
-                    f.write(user.id + "  ==>  " + "分类器分类结果: " + Multinomial_results[key] + "  ==>  " + "正确结果: " + user.category)
-                    f.write("\n")
-                    break
-    accuracy = TweetsClassify.Accuracy(Multinomial_results,category_dic)
-    print "分类结果:多项式贝叶斯分类器:共%d个名人,分类准确率为%f" % (len(Multinomial_results),accuracy)
+        # 计算在结果中该类别中有多少正确的
+        correct_number_in_sclassify = calcCategoryCorrectN(Multinomial_results,category,category_dic)
+        correct_number_in_mclassify = calcCategoryCorrectN(MultiModels_results,category,category_dic)
 
-    # 多分类器融合结果写入文件
-    with open("/home/duncan/MultiClassifier-results",'w') as f:
-        for key in MultiModels_results.keys():
-            for user in StandardUsers:
-                if user.id == key:
-                    f.write(user.id + "  ==>  " + "分类器分类结果: " + MultiModels_results[key] + "  ==>  " + "正确结果: " + user.category)
-                    f.write("\n")
-                    break
-    accuracy = TweetsClassify.Accuracy(MultiModels_results,category_dic)
-    print "分类结果:分类器融合:共%d个名人,分类准确率为%f" % (len(MultiModels_results),accuracy)
-    # ---------------------------------------------------------------------------------------------------------
-    print "-------------------------------------------------------------------------------------------"
+        # 准确率
+        categories_sprecision[category] = correct_number_in_sclassify * 1.0 / number_in_sclassify
+        categories_mprecision[category] = correct_number_in_mclassify * 1.0 / number_in_mclassify
 
-    # accuracy = TweetsClassify.Accuracy(BernoulliNB_resdic,users)
-    # print "使用DataSet%d分类结果,伯努力贝叶斯分类器:共%d个名人,分类准确率为%f" % (2,len(BernoulliNB_resdic),accuracy)
-    # print "-------------------------------------------------------------------------------------------"
-    #
-    # accuracy = TweetsClassify.Accuracy(LinearSVM_resdic,users)
-    # print "使用DataSet%d分类结果,线性SVM分类器:共%d个名人,分类准确率为%f" % (2,len(LinearSVM_resdic),accuracy)
-    # print "-------------------------------------------------------------------------------------------"
-    # 用和新闻推文来测试分类精度
-    # for i in range(1,6):
-    #     data_set_path = "/DocumentClassify/DataSet%s" % (str(i))
-    #     TweetsClassifyTraining.Training(data_set_path)
-    #
-    #     #------------------------------------------------进行测试--------------------------------
-    #     filenames = os.listdir(TestTweets_path)
-    #     count = 0
-    #     filesid = 0
-    #     for dir in filenames:
-    #         files = os.listdir(TestTweets_path + dir)
-    #         for file in files:
-    #             filesid += 1
-    #             with open(TestTweets_path + dir + "/" + file,"r") as f:
-    #                 text = f.read()
-    #             res = TweetsClassify.Classify(text)
-    #             if res == dir:
-    #                 count += 1
-    #     print "accuracy is %f" % (count * 1.0 / filesid)
-    #     print "-------------------------------------------------------------------------------------------"
+        # 召回率
+        categories_srecall[category] = correct_number_in_sclassify * 1.0 / calcCategoryN(category_dic,category)
+        categories_mrecall[category] = correct_number_in_mclassify * 1.0 / calcCategoryN(category_dic,category)
+
+        print "单模型 %s: 准确率 %f, 召回率 %f" % (category,categories_sprecision[category],categories_srecall[category])
+
+if __name__ == '__main__':
+
+    start = time.time()
+    Accuracy()
+#     # 获取标准人物样本库中的用户
+#     StandardUsers = mysql.getUsersInfo('StandardUsers')
+#
+#     # 将用户的id保存
+#     StandardUsers_id = []
+#     # i = 0
+#     for user in StandardUsers:
+#         StandardUsers_id.append(user.id)
+#
+# #------------------------------------------------选择训练集训练--------------------------------
+#     '''
+#     BCC分类：business/entertainment/politics/sport/technology
+#     CNN分类：agriculture/economy/education/entertainment/military/politics/religion/sports/technology
+#
+#     DataSet1 是 CNN + BCC新闻数据集(分类融合起来)
+#     DataSet2 是 BCC新闻数据集(加了维基词条的一些文章,加了CNN的一些文本,结果有提升)
+#     DataSet3 是 CNN新闻数据集
+#     DataSet4 是 CNN + BCC新闻数据集(CNN填补BCC没有的分类)
+#     DataSet5 是 CNN新闻 + BCC新闻 + 推文数据集(融合)
+#     '''
+#
+#     print "----------------------------开始分类------------------------------------------------"
+#     # ground_truth
+#     category_dic = GetCategoryById(StandardUsers)
+#
+#     # 采用预处理后的推文作为输入
+#     MultiModels_results,Multinomial_results = GetClassifyResultsByWords(StandardUsers_id)
+#
+#     # 将多项式分类器分类结果写入文件
+#     with open("/home/duncan/Multinomial_NB_Classifier-results",'w') as f:
+#         for key in Multinomial_results.keys():
+#             for user in StandardUsers:
+#                 if user.id == key:
+#                     f.write(user.id + "  ==>  " + "分类器分类结果: " + Multinomial_results[key] + "  ==>  " + "正确结果: " + user.category)
+#                     f.write("\n")
+#                     break
+#     accuracy = TweetsClassify.Accuracy(Multinomial_results,category_dic)
+#     print "分类结果:多项式贝叶斯分类器:共%d个名人,分类准确率为%f" % (len(Multinomial_results),accuracy)
+#
+#     # 多分类器融合结果写入文件
+#     with open("/home/duncan/MultiClassifier-results",'w') as f:
+#         for key in MultiModels_results.keys():
+#             for user in StandardUsers:
+#                 if user.id == key:
+#                     f.write(user.id + "  ==>  " + "分类器分类结果: " + MultiModels_results[key] + "  ==>  " + "正确结果: " + user.category)
+#                     f.write("\n")
+#                     break
+#     accuracy = TweetsClassify.Accuracy(MultiModels_results,category_dic)
+#     print "分类结果:分类器融合:共%d个人物,分类准确率为%f" % (len(MultiModels_results),accuracy)
+#     print "-------------------------------------------------------------------------------------------"
+
     end = time.time()
     print "共用时%fs" % (end - start)

@@ -121,6 +121,18 @@ def getCategories(table):
     Close(conn,cursor)
     return categories,number
 
+# 获取分类和分类人数,返回字典格式
+def getCategoriesAndNumber(table):
+    categories = {}
+    conn,cursor = Connection()
+    sql = "select category,count(*) as number from %s group by category" % table
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for d in data:
+        categories[d['category']] = d['number']
+    Close(conn,cursor)
+    return categories
+
 # 更新用户的心理状态
 def updateUserPsy(table,userid,psy,psy_seq,psy_tweets_starttime):
     '''

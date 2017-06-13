@@ -94,4 +94,4 @@ def Training(data_set_path):
     predicted = clf.predict(test_tf_transformer)
     print "accuracy:"
     print np.mean(predicted == test_set_y)
-Training("/DocumentClassify/DataSet1")
+# Training("/DocumentClassify/DataSet1")
