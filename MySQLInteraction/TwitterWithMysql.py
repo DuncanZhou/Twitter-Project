@@ -43,7 +43,7 @@ def getUserInfo(id,table):
     conn,cursor = Connection()
     cursor.execute("SELECT * FROM %s where userid = '%s'" % (table,id))
     data = cursor.fetchall()
-    twitter_user = TwitterUsers.User(data[0]['userid'],data[0]['screen_name'],data[0]['name'],data[0]['location'],data[0]['statuses_count'],data[0]['friends_count'],data[0]['followers_count'],data[0]['favourites_count'],data[0]['verified'],data[0]['category'],data[0]['influenceScore'],data[0]['rank_influ'],data[0]['psy'],data[0]['psy_seq'],data[0]['psy_tweets_starttime'],data[0]['interest_tags'],data[0]['description'])
+    twitter_user = TwitterUsers.User(data[0]['userid'],data[0]['screen_name'],data[0]['name'],data[0]['location'],data[0]['statuses_count'],data[0]['friends_count'],data[0]['followers_count'],data[0]['favourites_count'],data[0]['verified'],data[0]['category'],data[0]['influenceScore'],data[0]['rank_influ'],data[0]['psy'],data[0]['psy_seq'],data[0]['psy_tweets_starttime'],data[0]['interest_tags'],data[0]['description'],data[0]['crawler_date'])
     Close(conn,cursor)
     return twitter_user
 
@@ -56,7 +56,7 @@ def getUsersInfo(table):
     data = cursor.fetchall()
     user = []
     for d in data:
-        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'])
+        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'],d['crawler_date'])
         user.append(twitter_user)
     Close(conn,cursor)
     return user
@@ -80,7 +80,7 @@ def getUsersByCategory(table,category):
     cursor.execute("select * from '%s' where category = '%s'" % (table,category))
     data = cursor.fetchall()
     for d in data:
-        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'])
+        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'],d['crawler_date'])
         users.append(twitter_user)
     Close(conn,cursor)
     return users

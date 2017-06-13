@@ -122,12 +122,9 @@ def Generation(pos):
         #         continue
         if(w[1][0] == 'N'):
             word = lemmatizer.lemmatize(w[0])
-            lower_set = set()
         # else:
         #     word = lemmatizer.lemmatize(w[0],'a')
-            if word.lower() not in stopwords and word.lower() not in lower_set:
-                # 去除重复的大小写名词
-                lower_set.add(word.lower())
+            if word.lower() not in stopwords:
                 usercandidate.append(word)
 
     # 两个词的长度
@@ -396,7 +393,15 @@ def GenerateInterestsWithFollowers(userid):
     # 把简介加入到兴趣标签中,去除重复的
     interests = set(interests)
     interests.union(set(description))
-    interests = ",".join(interests)
+    new_interests = set()
+    lower_interest = set()
+    interests.union(set(description))
+    # 去除重复的标签
+    for interest in interests:
+        if interest.lower() not in lower_interest:
+            lower_interest.add(interest.lower())
+            new_interests.add(interest)
+    interests = ",".join(new_interests)
     # 将50个兴趣标签生成TagCloud
     # GenerateTagCloud(Interest50,userid)
     return interests
@@ -414,8 +419,15 @@ def GenerateInterestsWithTF(userid):
     interests = map(lambda interest:interest[0],Interest10)
     # 把简介加入到兴趣标签中,去除重复的
     interests = set(interests)
+    new_interests = set()
+    lower_interest = set()
     interests.union(set(description))
-    interests = ",".join(interests)
+    # 去除重复的标签
+    for interest in interests:
+        if interest.lower() not in lower_interest:
+            lower_interest.add(interest.lower())
+            new_interests.add(interest)
+    interests = ",".join(new_interests)
     return interests
 
 # 生成所有用户的兴趣标签
@@ -442,6 +454,7 @@ def test():
     starttime = time.time()
     # 生成所有标准人物样本库中人物的兴趣爱好标签
     GenerateAllUsersInterestTags()
+    # print GenerateInterestsWithFollowers("1173831")
     endtime = time.time()
     print "used %f seconds" % (endtime - starttime)
 

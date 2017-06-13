@@ -2,8 +2,9 @@
 #-*-coding:utf-8-*-
 '''@author:duncan'''
 
+import config
 class User:
-    def __init__(self,id,screen_name,name,location,statuses_count,friends_count,followers_count,favourites_count,verified,category,influenceScore,rank_influ,psy,psy_seq,psy_tweets_starttime,interest_tags,desciption):
+    def __init__(self,id,screen_name,name,location,statuses_count,friends_count,followers_count,favourites_count,verified,category,influenceScore,rank_influ,psy,psy_seq,psy_tweets_starttime,interest_tags,desciption,crawler_date):
         self.id = id
         self.screen_name = screen_name
         self.name = name
@@ -27,6 +28,8 @@ class User:
         self.interest_tags = interest_tags
         # 个人简介
         self.description = desciption
+        # 人物抓取时间
+        self.crawler_date = crawler_date
 
     def getProportion(self):
         if self.friends_count != 0:
@@ -50,5 +53,4 @@ class User:
             location = "no file"
         else:
             location = self.location
-
-        return "user id:%s  screen_name:%s  name:%s  verified:%s  location:%s  followers:%d  followings:%d  tweets:%d  favourites:%d" % (self.id,self.screen_name,self.name,verify,location,self.followers_count,self.friends_count,self.statuses_count,self.favourites_count)
+        return "用户id:%s  screen_name:%s  姓名:%s  是否认证:%s  地理位置:%s  粉丝数:%d  关注人数:%d  推文数:%d  点赞数:%d   影响力分数:%f   影响力等级:%s   近期心理状态:%s   兴趣爱好标签:%s   个人简介:%s   所属领域:%s   人物抓取时间:%s" % (self.id,self.screen_name,self.name,verify,location,self.followers_count,self.friends_count,self.statuses_count,self.favourites_count,self.influenceScore,config.rank_influence[self.rank_influ],config.psychological[self.psy],self.interest_tags,self.description,self.category,self.crawler_date)
