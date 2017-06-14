@@ -77,17 +77,13 @@ def RankInflu(table):
 def DistributionOfStandardUsers(table):
     labels,number = mysql.getCategories(table)
     totalnumber = reduce(lambda number1,number2:number1 + number2,number)
-    plt.figure(figsize=(20,10))
-    plt.bar([i for i in range(len(labels))],number,align='center',edgecolor="white",color="tomato")
-    plt.xticks([i for i in range(len(labels))],labels,fontsize=16)
-    # 加上柱形图上的y轴数据标注(b + 0.05表示在y值上方0.05处加上标注)
-    for (a,b) in zip([i for i in range(len(labels))],number):
-        plt.text(a,b + 0.05,b,ha='center',va='bottom',fontsize=16,color="brown")
-    plt.ylim(0,250)
-    plt.xlabel("category",fontsize=18)
-    plt.ylabel("the number of users",fontsize=18)
-    plt.title("%d Standard Users Distribution" % totalnumber,fontsize=20)
+    plt.figure(figsize=(12,12))
+    color = ['mediumseagreen','mediumturquoise','mediumslateblue','mediumaquamarine','mediumvioletred','aliceblue','tomato','rosybrown','darkkhaki']
+    expl = [0,0,0,0,0.1,0.1,0.1,0,0]
+    plt.pie(number,labels=labels,explode=expl,colors=color,pctdistance=0.8,shadow=True,autopct='%1.1f%%',labeldistance=1.1)
+    plt.title('%d Standard Users Distribution' % totalnumber, bbox={'facecolor':'0.8', 'pad':5})
     plt.show()
+
 # DistributionOfStandardUsers("StandardUsers")
 # getUsersScore("StandardUsers")
 # RankInflu("StandardUsers")

@@ -3,6 +3,7 @@
 
 import re
 import math
+import config
 import sys
 sys.path.append("..")
 from MySQLInteraction import TwitterWithMysql as mydb
@@ -83,7 +84,13 @@ def CalucateUserInfluence(userid,table="StandardUsers"):
     score = CalucateTwitterInfluence(CalucateActive(user,OTN,RTN),CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN))
 
     # 返回用户影响力分数
-    return score
+    if score < config.medium_influence:
+        rank = 1
+    elif score >= config.medium_influence and score < config.high_influence:
+        rank = 2
+    else:
+        rank = 3
+    return score,rank
 
 # 调用测试样例
 def test():
