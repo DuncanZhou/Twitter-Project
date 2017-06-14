@@ -112,10 +112,19 @@ def calcCategoryCorrectN(results,category,ground_truth):
             number += 1
     return number
 
+# 计算精确率
+def calcCorrectN(results,ground_truth):
+    number = 0
+    for key in results:
+        if results[key] == ground_truth[key]:
+            number += 1
+    return number
+
 # 计算每个领域的准确率和召回率
 def Accuracy(table="StandardUsers"):
     StandardUsers = mysql.getUsersInfo(table)
     categories = mysql.getCategoriesAndNumber(table)
+
 
     # 将用户的id保存
     StandardUsers_id = []
@@ -126,10 +135,21 @@ def Accuracy(table="StandardUsers"):
     category_dic = GetCategoryById(StandardUsers)
 
     # 采用预处理后的推文作为输入
-    MultiModels_results,Multinomial_results = GetClassifyResultsByWords(StandardUsers_id)
-    save_file = open("results.pickle","wb")
-    pickle.dump(Multinomial_results,save_file)
-    save_file.close()
+    # MultiModels_results,Multinomial_results = GetClassifyResultsByWords(StandardUsers_id)
+    # save_file = open("S_results.pickle","wb")
+    # pickle.dump(Multinomial_results,save_file)
+    # save_file.close()
+
+    # save_file = open("M_results.pickle","wb")
+    # pickle.dump(MultiModels_results,save_file)
+    # save_file.close()
+
+    open_file = open("results.pickle",'rb')
+    Multinomial_results = pickle.load(open_file)
+    MultiModels_results = Multinomial_results
+    open_file.close()
+
+    S_Correct = calcCorrectN(Multinomial_results,category_dic) * 1.0 / len(category_dic.keys())
 
     categories_sprecision = {}
     categories_mprecision = {}
@@ -153,6 +173,10 @@ def Accuracy(table="StandardUsers"):
         categories_mrecall[category] = correct_number_in_mclassify * 1.0 / calcCategoryN(category_dic,category)
 
         print "单模型 %s: 准确率 %f, 召回率 %f" % (category,categories_sprecision[category],categories_srecall[category])
+    S_Precision = reduce(lambda x,y:x + y,categories_sprecision.values()) / 9
+    S_Recall = reduce(lambda x,y:x + y,categories_srecall.values()) / 9
+    S_FScore = S_Precision * S_Recall * 2 / (S_Precision + S_Recall)
+    print "单模型 精确率:%f\t平均准确率:%f\t平均召回率:%f\t平均F-Score:%f" % (S_Correct,S_Precision,S_Recall,S_FScore)
 
 if __name__ == '__main__':
 
