@@ -3,7 +3,6 @@
 '''@author:duncan'''
 
 import xml.dom.minidom
-import MySQLdb
 import sys
 import config
 reload(sys)
@@ -114,28 +113,34 @@ def GenerateUserXml(twitter_user):
     CategoryE.appendChild(CategoryT)
 
     # 用户心里状态标签
-    FeelingE = dom.createElement("心理状态")
-    FeelingT = dom.createTextNode("空")
+    FeelingE = dom.createElement("近期心理状态")
+    FeelingT = dom.createTextNode(config.psychological[twitter_user.psy])
     FeelingE.appendChild(FeelingT)
 
     # 用户兴趣爱好标签
     InterestE = dom.createElement("兴趣爱好")
-    InterestT = dom.createTextNode("空")
+    InterestT = dom.createTextNode(twitter_user.interest_tags)
     InterestE.appendChild(InterestT)
 
     # 用户社交影响力标签
     InfluenceE = dom.createElement("影响力分数")
-    InfluenceT = dom.createTextNode("空")
+    InfluenceT = dom.createTextNode(str(twitter_user.influenceScore))
     InfluenceE.appendChild(InfluenceT)
+
+    # 用户社交影响力标签
+    RankInfluE = dom.createElement("影响力等级")
+    RankInfluT = dom.createTextNode(config.rank_influence[twitter_user.rank_influ])
+    RankInfluE.appendChild(RankInfluT)
 
     # 将隐性属性标签加入到隐性标签中
     ImplicitInfo.appendChild(CategoryE)
     ImplicitInfo.appendChild(FeelingE)
     ImplicitInfo.appendChild(InterestE)
     ImplicitInfo.appendChild(InfluenceE)
+    ImplicitInfo.appendChild(RankInfluE)
 
     # 将用户信息写入文件
-    with open('/home/duncan/StandardUsersXML/%s.xml' % twitter_user.screen_name,'w') as f:
+    with open(config.XML_path + '%s.xml' % twitter_user.screen_name,'w') as f:
         dom.writexml(f,addindent=" ",newl='\n')
 
 # 生成XML文件
@@ -146,23 +151,3 @@ def GenerateUsersXml(users):
         GenerateUserXml(twitter_user)
         count += 1
         print "finished %d users" % count
-
-# if __name__ == '__main__':
-#     conn = MySQLdb.connect(
-#         host='localhost',
-#         port = 3306,
-#         user='root',
-#         passwd='123',
-#         db ='TwitterUserInfo',
-#     )
-#     cursor = conn.cursor()
-#     # 获取所有用户
-#     users = getUsers(cursor)
-#     print "totoal number of users is %d" % len(users)
-#
-#     GenerateXml(users)
-#
-#     cursor.close()
-#     conn.commit()
-#     conn.close()
-

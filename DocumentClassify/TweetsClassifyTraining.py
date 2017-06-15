@@ -2,7 +2,8 @@
 #-*-coding:utf-8-*-
 '''@author:duncan'''
 
-import os
+import sys
+sys.path.append("..")
 import config
 import pickle
 from sklearn import datasets
@@ -17,6 +18,11 @@ from sklearn.ensemble import RandomForestClassifier,ExtraTreesClassifier
 # 人工神经网络-多层传感器网络
 # from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
+# 引入集成学习来提高准确率
+# adaboost用决策树来集成
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
 
 '''
 装载训练集
@@ -78,22 +84,22 @@ def Training(data_set_path=config.project_path + "/DocumentClassify/DataSet2"):
 
 
     # 使用线性核的SVM来分类
-    clf_svm = SVC(kernel='linear').fit(x_train_tf,training_set.target) # 默认的核是rbf核
-    print "线性核的SVM分类器训练完成......."
-    LinearSVM_classifier_path = piclke_path + "LinearSVM_classifier.pickle"
-    save_tweets_LinearSVM_classifier = open(LinearSVM_classifier_path,"wb")
-    pickle.dump(clf_svm,save_tweets_LinearSVM_classifier)
-    save_tweets_LinearSVM_classifier.close()
-    print "线性核的SVM分类器已保存，目录为" + LinearSVM_classifier_path
+    # clf_svm = SVC(kernel='linear').fit(x_train_tf,training_set.target) # 默认的核是rbf核
+    # print "线性核的SVM分类器训练完成......."
+    # LinearSVM_classifier_path = piclke_path + "LinearSVM_classifier.pickle"
+    # save_tweets_LinearSVM_classifier = open(LinearSVM_classifier_path,"wb")
+    # pickle.dump(clf_svm,save_tweets_LinearSVM_classifier)
+    # save_tweets_LinearSVM_classifier.close()
+    # print "线性核的SVM分类器已保存，目录为" + LinearSVM_classifier_path
 
     # 使用随即梯度下降模型来分类
-    clf_SGD = SGDClassifier(loss="hinge", penalty="l2").fit(x_train_tf.toarray(),training_set.target)
-    print "随机梯度下降分类器训练完成......."
-    SGD_classifier_path = piclke_path + "SGD_classifier.pickle"
-    save_tweets_SGD_classifier = open(SGD_classifier_path,"wb")
-    pickle.dump(clf_SGD,save_tweets_SGD_classifier)
-    save_tweets_SGD_classifier.close()
-    print "随机梯度下降分类器已保存，目录为" + SGD_classifier_path
+    # clf_SGD = SGDClassifier(loss="hinge", penalty="l2").fit(x_train_tf.toarray(),training_set.target)
+    # print "随机梯度下降分类器训练完成......."
+    # SGD_classifier_path = piclke_path + "SGD_classifier.pickle"
+    # save_tweets_SGD_classifier = open(SGD_classifier_path,"wb")
+    # pickle.dump(clf_SGD,save_tweets_SGD_classifier)
+    # save_tweets_SGD_classifier.close()
+    # print "随机梯度下降分类器已保存，目录为" + SGD_classifier_path
 
     # 使用随机森林模型来分类
     clf_RandomForest = RandomForestClassifier(n_estimators=10).fit(x_train_tf.toarray(),training_set.target)
@@ -114,14 +120,25 @@ def Training(data_set_path=config.project_path + "/DocumentClassify/DataSet2"):
     # print "多层传感器分类器已保存，目录为" + MLP_classifier_path
 
     # 使用极端随机树
-    clf_ExtraTree = ExtraTreesClassifier(n_estimators=10, max_depth=None,min_samples_split=2, random_state=0).fit(x_train_tf.toarray(),training_set.target)
-    print "极端随机树分类器训练完成......."
-    ExtraTree_classifier_path = piclke_path + "ExtraTree_classifier.pickle"
-    save_tweets_ExtraTree_classifier = open(ExtraTree_classifier_path,"wb")
-    pickle.dump(clf_ExtraTree,save_tweets_ExtraTree_classifier)
-    save_tweets_ExtraTree_classifier.close()
-    print "极端随机树分类器已保存，目录为" + ExtraTree_classifier_path
+    # clf_ExtraTree = ExtraTreesClassifier(n_estimators=10, max_depth=None,min_samples_split=2, random_state=0).fit(x_train_tf.toarray(),training_set.target)
+    # print "极端随机树分类器训练完成......."
+    # ExtraTree_classifier_path = piclke_path + "ExtraTree_classifier.pickle"
+    # save_tweets_ExtraTree_classifier = open(ExtraTree_classifier_path,"wb")
+    # pickle.dump(clf_ExtraTree,save_tweets_ExtraTree_classifier)
+    # save_tweets_ExtraTree_classifier.close()
+    # print "极端随机树分类器已保存，目录为" + ExtraTree_classifier_path
 
+    #　集成学习
+    bdt_real = AdaBoostClassifier(
+        DecisionTreeClassifier(max_depth=2),
+        n_estimators=600,
+        learning_rate=1)
+    bdt_real.fit(x_train_tf.toarray(),training_set.target)
+    print "adaboost训练完成...."
+    adaboost_classifier_path = piclke_path + "adaboost_classifier.pickle"
+    save_tweets_adaboost_classifier = open(adaboost_classifier_path,"wb")
+    pickle.dump(bdt_real,save_tweets_adaboost_classifier)
+    save_tweets_adaboost_classifier.close()
 
 
 # Training("/DocumentClassify/DataSet2")

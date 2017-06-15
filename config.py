@@ -4,10 +4,9 @@
 # 配置文件
 # 目录配置
 import os
-project_folder_path = os.path.abspath(".." + os.path.sep + "..")
-project_path = os.path.abspath("..")
+project_path = os.path.abspath(".")
 stop_words_path = project_path + "/resource/stopwords.txt"
-standard_users_words_set_path = project_path + "/resource/words_set.pickle"
+XML_path = project_path + "/resource/UsersXML/"
 
 # mysql配置
 host = "localhost"
@@ -38,6 +37,7 @@ svm = 'LinearSVM'
 forest = 'RandomForest'
 sgd = 'SGD'
 etree = 'ExtraTree'
+ada = 'adaboost'
 
 # 资源配置
 # 读取停用词

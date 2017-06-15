@@ -32,8 +32,20 @@ def Close(conn,cursor):
     conn.commit()
     conn.close()
 
+# 判断用户是否存在
+def checkUser(id,table="StandardUsers"):
+    conn,cursor = Connection()
+    cursor.execute("SELECT count(*) as count FROM %s where userid = '%s'" % (table,id))
+    data = cursor.fetchall()
+    exist = data[0]['count']
+    Close(conn,cursor)
+    if exist == 1:
+        return True
+    else:
+        return False
+
 # 根据用户id查询用户信息
-def getUserInfo(id,table):
+def getUserInfo(id,table="StandardUsers"):
     '''
     :param id: 用户id
     :param table: 表名
@@ -174,3 +186,10 @@ def getEmptyInterestUsers(table):
         userids.append(d['userid'])
     Close(conn,cursor)
     return userids
+
+# 更性用户信息
+def updateUserImplicitAttributeById(userid,user,table="StandardUsers"):
+    conn,cursor = Connection()
+    sql = "update %s set influenceScore,rank_influ,psy,psy_seq,psy_tweets_starttime,interest_tags = %d where userid = '%s'" % (table,user.influecneScore,user.rank_influ,user.psy,user.psy_seq,user.psy_tweets_starttime,user.interest_tags,userid)
+    cursor.execute(sql)
+    Close(conn,cursor)

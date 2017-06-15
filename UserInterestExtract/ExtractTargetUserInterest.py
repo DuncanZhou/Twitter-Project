@@ -18,13 +18,10 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from numpy import *
 import config
-import pickle
-import chardet
 
 BeatFactor = 3000000
 
 project_path = config.project_path
-project_folder_path = config.project_folder_path
 
 # usercandidate = []
 
@@ -46,44 +43,13 @@ def Split(text):
             wordslist.append(word)
     return wordslist
 
-# 获取所有用户的单词列表,返回结果是每个用户的单词列表和单词集合
-def GenerateWords(table="StandardUsers"):
-    user_words_set = {}
-    userids = mysql.getUsersId(table)
-    count = 0
-    for id in userids:
-        # try:
-        # 获取用户推文
-        text = mongo.getUserTweets(id)
-        wordsList = Split(text)
-        wordsSet = set()
-        try:
-            for word in set(wordsList):
-                if word.isalpha():
-                    wordsSet.add(word.lower())
-        except Exception as e:
-            pass
-        user_words_set[id] = wordsSet
-        count += 1
-        print "finished %d users" % count
-        # except Exception as e:
-        #     print "lose user"
-        #     user_words_set[id] = set("")
-    # 持久化
-    save_file = open(config.standard_users_words_set_path,'wb')
-    pickle.dump(user_words_set,save_file)
-    save_file.close()
-    return user_words_set
+# 获取某用户的单词列表,返回结果是用户的单词集合
+def GenerateWords(id,table="StandardUsers"):
 
-# 获取用户的词频集合,wordSet为全局变量
-try:
-    open_file = open(config.standard_users_words_set_path,'rb')
-    wordsSet = pickle.load(open_file)
-    open_file.close()
-except Exception as e:
-    # 如果文件不存在,则重新生成
-    wordsSet = GenerateWords()
-print "获取用户词频完毕"
+    # 获取用户推文
+    candidates = getUserTopInterest(id)
+    wordsSet = map(lambda candidate:(candidate[0]).lower(),candidates)
+    return set(wordsSet)
 
 # 推文预处理
 def PreProcess(text):
@@ -238,9 +204,11 @@ def getUserTopInterest(userid):
 步骤4:得到目标用户候选集后，在其它用户中计算TFIDF值
 '''
 def CalculateTFIDF(usercandidate,user_id,table="StandardUsers"):
+
     # 获取用户的所有id
     userids = mysql.getUsersId(table)
     userNumber = len(userids)
+    print "正在计算TFIDF,数据库中共计%d个用户" % (userNumber)
     # print "该用户有%d个用户,现在开始计算" % (userNumber - 1)
     tfidf = [1 for i in range(50)]
     # for i in range(100):
@@ -250,18 +218,17 @@ def CalculateTFIDF(usercandidate,user_id,table="StandardUsers"):
         if userid == user_id:
             continue
             # lines = f.readlines()
+        wordsSet = GenerateWords(userid)
         id = 0
         for candidate in usercandidate:
-            # for line in lines:
-            # try:
-                # if text.find(candidate[0]):
-                # if re.search(" " + candidate[0] + "[^\w]?",text) != None:
-            if candidate[0] in wordsSet[userid]:
+            # 全部转换成小写
+            if (candidate[0]).lower() in wordsSet:
                 tfidf[id] += 1
             # except Exception as e:
             #     pass
             id += 1
         count += 1
+        print count
     id = 0
     for uc in usercandidate:
         value = math.log(userNumber * 1.0 / tfidf[id]) * uc[1]
@@ -458,7 +425,7 @@ def test():
     endtime = time.time()
     print "used %f seconds" % (endtime - starttime)
 
-test()
+# test()
 
 # print GenerateInterestsWithTF("10126672")
 # print PreProcess("China is a nice country")

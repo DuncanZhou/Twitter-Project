@@ -116,7 +116,7 @@ def SentimentWithTime(userid,period=1):
         res = 0
         return starttime,psychologic,res
 
-    print pos * 1.0 / len(period_tweets)
+    # print pos * 1.0 / len(period_tweets)
     if pos * 1.0 / len(period_tweets) > 0.5:
         res =  1
     else:

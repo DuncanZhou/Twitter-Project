@@ -33,10 +33,12 @@ Classifiers = [config.mnb,config.svm,config.forest,config.sgd,config.etree]
 # 并不是把推文全部作为输入,在去除推文中停用词并将所有单词作为输入
 def GetClassifyResultsByWords(users_id,collection_name="tweets"):
     # 四种分类器的权值
-    weight = [0.4,0.3,0.1,0.1,0.1]
+    # weight = [0.4,0.3,0.1,0.1,0.1]
     results = []
-    multiclassifier_result = {}
+    # multiclassifier_result = {}
     MultinomialNB_resdic = {}
+    RandomForest_resdic = {}
+    AdaBoost_resdic = {}
     # LinearSVM_resdic = {}
     # RandomForest_resdic = {}
     # SGD_resdic = {}
@@ -70,8 +72,10 @@ def GetClassifyResultsByWords(users_id,collection_name="tweets"):
     #     RandomForest_res = TweetsClassify.Classify(text,"RandomForest")
     #     SGD_res = TweetsClassify.Classify(text,"SGD")
     #     ExtraTree_res = TweetsClassify.Classify(text,"ExtraTree")
-    #
+    #   测试三种分类器,单模型,两种多模型融合(随即森林和Boosting)
         MultinomialNB_resdic[id] = MultinomialNB_res
+        RandomForest_resdic[id] = TweetsClassify.Classify(text,config.forest)
+        AdaBoost_resdic[id] = TweetsClassify.Classify(text,config.ada)
     #     LinearSVM_resdic[id] = LinearSVM_res
     #     RandomForest_resdic[id] = RandomForest_res
     #     SGD_resdic[id] = SGD_res
@@ -83,11 +87,11 @@ def GetClassifyResultsByWords(users_id,collection_name="tweets"):
     # results.append(ExtraTree_resdic)
 
         # 多模型融合
-        result = TweetsClassify.Classify_MultiModels(text,Classifiers,weight)
-        multiclassifier_result[id] = result
+        # result = TweetsClassify.Classify_MultiModels(text,Classifiers,weight)
+        # multiclassifier_result[id] = result
         count += 1
         print "finished %d users" % count
-    return multiclassifier_result,MultinomialNB_resdic
+    return RandomForest_resdic,MultinomialNB_resdic,AdaBoost_resdic
 
 # 从mysql中查询用户的分类形成字典返回
 def GetCategoryById(users):
@@ -125,7 +129,6 @@ def Accuracy(table="StandardUsers"):
     StandardUsers = mysql.getUsersInfo(table)
     categories = mysql.getCategoriesAndNumber(table)
 
-
     # 将用户的id保存
     StandardUsers_id = []
 
@@ -134,49 +137,76 @@ def Accuracy(table="StandardUsers"):
     # ground_truth
     category_dic = GetCategoryById(StandardUsers)
 
-    # 采用预处理后的推文作为输入
-    # MultiModels_results,Multinomial_results = GetClassifyResultsByWords(StandardUsers_id)
-    # save_file = open("S_results.pickle","wb")
-    # pickle.dump(Multinomial_results,save_file)
-    # save_file.close()
+    RandomForest_results,Multinomial_results,AdaBoost_results = GetClassifyResultsByWords(StandardUsers_id)
+    save_file = open("S_results.pickle","wb")
+    pickle.dump(Multinomial_results,save_file)
+    save_file.close()
+
+    save_file = open("r_results.pickle","wb")
+    pickle.dump(RandomForest_results,save_file)
+    save_file.close()
+
+    save_file = open("a_results.pickle","wb")
+    pickle.dump(AdaBoost_results,save_file)
+    save_file.close()
 
     # save_file = open("M_results.pickle","wb")
     # pickle.dump(MultiModels_results,save_file)
     # save_file.close()
 
-    open_file = open("results.pickle",'rb')
-    Multinomial_results = pickle.load(open_file)
-    MultiModels_results = Multinomial_results
-    open_file.close()
+    # open_file = open("results.pickle",'rb')
+    # Multinomial_results = pickle.load(open_file)
+    # MultiModels_results = Multinomial_results
+    # open_file.close()
 
     S_Correct = calcCorrectN(Multinomial_results,category_dic) * 1.0 / len(category_dic.keys())
+    R_Correct = calcCorrectN(RandomForest_results,category_dic) * 1.0 / len(category_dic.keys())
+    A_Correct = calcCorrectN(AdaBoost_results,category_dic) * 1.0 / len(category_dic.keys())
 
     categories_sprecision = {}
-    categories_mprecision = {}
+    categories_rprecision = {}
+    categories_aprecision = {}
     categories_srecall = {}
-    categories_mrecall = {}
+    categories_rrecall = {}
+    categories_arecall = {}
     for category in categories.keys():
         # 计算在结果中共有多少该类别
-        number_in_mclassify = calcCategoryN(MultiModels_results,category)
+        number_in_rclassify = calcCategoryN(RandomForest_results,category)
         number_in_sclassify = calcCategoryN(Multinomial_results,category)
+        number_in_aclassify = calcCategoryN(AdaBoost_results,category)
 
         # 计算在结果中该类别中有多少正确的
         correct_number_in_sclassify = calcCategoryCorrectN(Multinomial_results,category,category_dic)
-        correct_number_in_mclassify = calcCategoryCorrectN(MultiModels_results,category,category_dic)
+        correct_number_in_rclassify = calcCategoryCorrectN(RandomForest_results,category,category_dic)
+        correct_number_in_aclassify = calcCategoryCorrectN(AdaBoost_results,category,category_dic)
 
         # 准确率
         categories_sprecision[category] = correct_number_in_sclassify * 1.0 / number_in_sclassify
-        categories_mprecision[category] = correct_number_in_mclassify * 1.0 / number_in_mclassify
+        categories_rprecision[category] = correct_number_in_rclassify * 1.0 / number_in_rclassify
+        categories_aprecision[category] = correct_number_in_aclassify * 1.0 / number_in_aclassify
 
         # 召回率
         categories_srecall[category] = correct_number_in_sclassify * 1.0 / calcCategoryN(category_dic,category)
-        categories_mrecall[category] = correct_number_in_mclassify * 1.0 / calcCategoryN(category_dic,category)
+        categories_rrecall[category] = correct_number_in_rclassify * 1.0 / calcCategoryN(category_dic,category)
+        categories_arecall[category] = correct_number_in_aclassify * 1.0 / calcCategoryN(category_dic,category)
 
-        print "单模型 %s: 准确率 %f, 召回率 %f" % (category,categories_sprecision[category],categories_srecall[category])
+        # print "%s: 准确率 %f, 召回率 %f\n" % (category,categories_sprecision[category],categories_srecall[category])
+
     S_Precision = reduce(lambda x,y:x + y,categories_sprecision.values()) / 9
     S_Recall = reduce(lambda x,y:x + y,categories_srecall.values()) / 9
     S_FScore = S_Precision * S_Recall * 2 / (S_Precision + S_Recall)
-    print "单模型 精确率:%f\t平均准确率:%f\t平均召回率:%f\t平均F-Score:%f" % (S_Correct,S_Precision,S_Recall,S_FScore)
+
+    R_Precision = reduce(lambda x,y:x + y,categories_rprecision.values()) / 9
+    R_Recall = reduce(lambda x,y:x + y,categories_rrecall.values()) / 9
+    R_FScore = R_Precision * R_Recall * 2 / (R_Precision + R_Recall)
+
+    A_Precision = reduce(lambda x,y:x + y,categories_aprecision.values()) / 9
+    A_Recall = reduce(lambda x,y:x + y,categories_arecall.values()) / 9
+    A_FScore = A_Precision * A_Recall * 2 / (A_Precision + A_Recall)
+
+    print "单模型多项式贝叶斯 精确率:%f\t平均准确率:%f\t平均召回率:%f\t平均F-Score:%f" % (S_Correct,S_Precision,S_Recall,S_FScore)
+    print "多模型融合随机森林 精确率:%f\t平均准确率:%f\t平均召回率:%f\t平均F-Score:%f" % (R_Correct,R_Precision,R_Recall,R_FScore)
+    print "多模型融合AdaBoost 精确率:%f\t平均准确率:%f\t平均召回率:%f\t平均F-Score:%f" % (A_Correct,A_Precision,A_Recall,A_FScore)
 
 if __name__ == '__main__':
 

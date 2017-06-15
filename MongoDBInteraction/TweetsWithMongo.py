@@ -28,7 +28,7 @@ def getTweets(userid):
     return results
 
 # 返回推文文本
-def getUserTweets(userid,collection_name="StandardUsers"):
+def getUserTweets(userid,collection_name="tweets"):
     db = Conn()
     tweets = ""
     result = db[collection_name].find({"user_id":long(userid)})
@@ -65,7 +65,7 @@ def InsertStandardUsers(table):
         data['crawler_date'] = user.crawler_date
         collection.insert(data)
         count += 1
-        print "finished %d users" % count
+        print "insert %d users" % count
     # 建立索引
     try:
         collection.ensureIndex("user_id",unique=True)

@@ -55,24 +55,24 @@ def CalucateParameters(tweets):
             OFavN += tweet["favorite_count"]
         count += 1
     # OriginNumber RTNumber
-    print "%d条推文" % count
+    # print "%d条推文" % count
     return OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
 
 # active
 def CalucateActive(user,OriginN,RTN):
     # 调整粉丝数的权重,占活跃度的0.5,原推文和转推数分别是0.3和0.2
-    d_active = 0.3 * math.log(OriginN + 1,math.e) + 0.2 * math.log(RTN + 1,math.e) + 0.5 * math.log(user.followers_count + 1,math.e)
+    d_active = (0.3 * math.log(OriginN + 1,math.e) + 0.2 * math.log(RTN + 1,math.e) + 0.5 * math.log(user.followers_count + 1,math.e)) * 10
     return d_active
 
 # Influence
 def CalucateInfluence(ORTN,OFavN,RTN,RTFavN):
-    return 0.4 * math.log(ORTN + 1,math.e) + 0.2 * math.log(OFavN + 1,math.e) + 0.2 * math.log(RTN + 1,math.e) + 0.2 * math.log(RTFavN + 1,math.e)
+    return (0.4 * math.log(ORTN + 1,math.e) + 0.2 * math.log(OFavN + 1,math.e) + 0.2 * math.log(RTN + 1,math.e) + 0.2 * math.log(RTFavN + 1,math.e)) * 10
 
 # twitter Influence
 def CalucateTwitterInfluence(d_active,d_twitter):
-    print "活跃度%f" % d_active
-    print "影响度%f" % d_twitter
-    return (0.3 * d_active + 0.7 * d_twitter) * 10
+    # print "活跃度:%f" % d_active
+    # print "影响度:%f" % d_twitter
+    return (0.3 * d_active + 0.7 * d_twitter)
 
 # 对外接口计算用户影响力分数
 def CalucateUserInfluence(userid,table="StandardUsers"):
@@ -81,7 +81,9 @@ def CalucateUserInfluence(userid,table="StandardUsers"):
     user = getUserInfo(userid,table)
     # print user.location
     OTN,RTN,ORTN,RTrtN,OFavN,RTFavN = CalucateParameters(result)
-    score = CalucateTwitterInfluence(CalucateActive(user,OTN,RTN),CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN))
+    d_active = CalucateActive(user,OTN,RTN)
+    d_influ = CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN)
+    score = CalucateTwitterInfluence(d_active,d_influ)
 
     # 返回用户影响力分数
     if score < config.medium_influence:
@@ -90,7 +92,7 @@ def CalucateUserInfluence(userid,table="StandardUsers"):
         rank = 2
     else:
         rank = 3
-    return score,rank
+    return score,d_active,d_influ,rank
 
 # 调用测试样例
 def test():

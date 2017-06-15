@@ -7,10 +7,8 @@ import config
 import os
 import TweetsClassifyTraining
 
-project_folder_path = config.project_folder_path
 project_path = config.project_path
 data_folder_path = "/TweetsSamples/"
-famouse_tweets_folder_path = project_folder_path + "/TweetsSamples/famous_users_tweets/"
 pickle_path = project_path + "/DocumentClassify/pickles/"
 tf_transformer_path = pickle_path + "tf_transformer.picle"
 categories_path = pickle_path + "categories.pickle"
@@ -110,24 +108,6 @@ def Classify_MultiModels(text,classifiers,weight):
         classify_result[res] = value
     classify_result = sorted(classify_result.items(),key = lambda dic:dic[1],reverse = True)
     return classify_result[:1][0][0]
-
-
-
-# 获取推文
-def getTweets(file_path):
-    '''
-
-    :param file_path:推文文件路径
-    :return: 文本内容
-    '''
-    text = ""
-    with open(file_path) as f:
-        doc = f.readlines()
-        for line in doc:
-            text += line.replace("\n","")
-    return text
-
-
 
 def Accuracy(resdic,users):
     '''
