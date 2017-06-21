@@ -4,6 +4,7 @@
 
 # 该脚本将TwitterUser基本信息写入CSV文本文件中
 
+
 import csv
 import sys
 sys.path.append("..")
@@ -28,10 +29,10 @@ def Write2CSV(users,path):
         count = 0
         writer = csv.writer(csvfile)
         # 写入CSV文件的标题
-        writer.writerow(['userid','screen_name','name','followers_count','friends_count','favourites_count','location','verified','category'])
+        writer.writerow(['userid','screen_name','name','followers_count','friends_count','favourites_count','location','verified','category','time_zone','influenceScore','rank_influ','psy'])
         twitter_users = []
         for user in users:
-            temp = (user.id,user.screen_name,user.name,user.followers_count,user.friends_count,user.favourites_count,user.location,user.verified,user.category)
+            temp = (user.id,user.screen_name,user.name,user.followers_count,user.friends_count,user.favourites_count,user.location,user.verified,user.category,user.time_zone,user.influenceScore,user.rank_influ,user.psy)
             twitter_users.append(temp)
             count += 1
         writer.writerows(twitter_users)

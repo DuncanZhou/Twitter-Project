@@ -13,19 +13,6 @@ project_path = config.project_path
 # 获取DOM树实现对象
 impl = xml.dom.minidom.getDOMImplementation()
 
-# # 获取用户信息
-# def getUsers(cursor):
-#     cursor.execute("SELECT * FROM StandardUsers limit 10")
-#     data = cursor.fetchall()
-#     users = []
-#     for d in data:
-#         # id screen_name name followers_count friends_count statuses_count favourites_count location verified
-#         twitter_user = TwitterUsers.User(d[3],d[1],d[0],d[4],d[7],d[9],d[8],d[10],d[14])
-#         twitter_user.setCategory(d[2])
-#         users.append(twitter_user)
-#     return users
-
-
 # 生成某一用户的XML文件
 def GenerateUserXml(twitter_user):
 
