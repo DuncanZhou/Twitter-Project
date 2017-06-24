@@ -27,7 +27,7 @@ project_folder_path = config.project_folder_path
 # databasename = "TwitterUserInfo"
 
 
-stopwords = config.stopwords
+stopwords = config.getStopWords()
 Classifiers = [config.mnb,config.svm,config.forest,config.sgd,config.etree]
 
 # 并不是把推文全部作为输入,在去除推文中停用词并将所有单词作为输入

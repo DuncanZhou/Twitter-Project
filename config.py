@@ -41,7 +41,7 @@ ada = 'adaboost'
 
 # 资源配置
 # 读取停用词
-def getStopWords(path):
+def getStopWords(path=stop_words_path):
     stopwords = set()
     with open(path,"r") as f:
         lines = f.readlines()
@@ -49,4 +49,4 @@ def getStopWords(path):
         stopwords.add(line.replace("\r\n","").rstrip())
     return stopwords
 
-stopwords = getStopWords(stop_words_path)
+# stopwords = getStopWords(stop_words_path)

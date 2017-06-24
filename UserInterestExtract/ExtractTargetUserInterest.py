@@ -25,7 +25,7 @@ project_path = config.project_path
 
 # usercandidate = []
 
-stopwords = config.stopwords
+stopwords = config.getStopWords()
 
 # 推文切分为单词
 def Split(text):

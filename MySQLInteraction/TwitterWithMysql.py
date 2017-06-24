@@ -10,7 +10,6 @@ import sys
 sys.path.append("..")
 from TwitterUsers import TwitterUsers
 
-
 # 数据库连接
 def Connection():
     conn = MySQLdb.connect(
@@ -55,7 +54,7 @@ def getUserInfo(id,table="StandardUsers"):
     conn,cursor = Connection()
     cursor.execute("SELECT * FROM %s where userid = '%s'" % (table,id))
     data = cursor.fetchall()
-    twitter_user = TwitterUsers.User(data[0]['userid'],data[0]['screen_name'],data[0]['name'],data[0]['location'],data[0]['statuses_count'],data[0]['friends_count'],data[0]['followers_count'],data[0]['favourites_count'],data[0]['verified'],data[0]['category'],data[0]['influenceScore'],data[0]['rank_influ'],data[0]['psy'],data[0]['psy_seq'],data[0]['psy_tweets_starttime'],data[0]['interest_tags'],data[0]['description'],data[0]['crawler_date'])
+    twitter_user = TwitterUsers.User(data[0]['userid'],data[0]['screen_name'],data[0]['name'],data[0]['location'],data[0]['statuses_count'],data[0]['friends_count'],data[0]['followers_count'],data[0]['favourites_count'],data[0]['verified'],data[0]['category'],data[0]['influenceScore'],data[0]['rank_influ'],data[0]['psy'],data[0]['psy_seq'],data[0]['psy_tweets_starttime'],data[0]['interest_tags'],data[0]['description'],data[0]['crawler_date'],data[0]['time_zone'])
     Close(conn,cursor)
     return twitter_user
 
@@ -68,7 +67,7 @@ def getUsersInfo(table):
     data = cursor.fetchall()
     user = []
     for d in data:
-        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'],d['crawler_date'])
+        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'],d['crawler_date'],d['time_zone'])
         user.append(twitter_user)
     Close(conn,cursor)
     return user
@@ -92,7 +91,7 @@ def getUsersByCategory(table,category):
     cursor.execute("select * from '%s' where category = '%s'" % (table,category))
     data = cursor.fetchall()
     for d in data:
-        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'],d['crawler_date'])
+        twitter_user = TwitterUsers.User(d['userid'],d['screen_name'],d['name'],d['location'],d['statuses_count'],d['friends_count'],d['followers_count'],d['favourites_count'],d['verified'],d['category'],d['influenceScore'],d['rank_influ'],d['psy'],d['psy_seq'],d['psy_tweets_starttime'],d['interest_tags'],d['description'],d['crawler_date'],d['time_zone'])
         users.append(twitter_user)
     Close(conn,cursor)
     return users
@@ -187,9 +186,27 @@ def getEmptyInterestUsers(table):
     Close(conn,cursor)
     return userids
 
-# 更性用户信息
+# 更新用户信息
 def updateUserImplicitAttributeById(userid,user,table="StandardUsers"):
     conn,cursor = Connection()
     sql = "update %s set influenceScore,rank_influ,psy,psy_seq,psy_tweets_starttime,interest_tags = %d where userid = '%s'" % (table,user.influecneScore,user.rank_influ,user.psy,user.psy_seq,user.psy_tweets_starttime,user.interest_tags,userid)
     cursor.execute(sql)
     Close(conn,cursor)
+
+# 获取关系表relation_temp中的人物关系
+def getUserRelation(table="relation_temp"):
+    relations = []
+    conn,cursor = Connection()
+    sql = "select source_user_id,target_user_id,followed_by,following from %s" % table
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for d in data:
+        if d['followed_by'] == 'True':
+
+        # target_user_id --> source_user_id
+            relations.append((d['target_user_id'],d['source_user_id']))
+        if d['following'] == 'True':
+        # source_user_id --> target_user_id
+            relations.append((d['source_user_id'],d['target_user_id']))
+    Close(conn,cursor)
+    return relations

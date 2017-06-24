@@ -37,10 +37,10 @@ def CreateNodesFromCSV(path):
     Close(session,driver)
 
 # 判断两个结点之间是否已经有follows关系
-def isFollow(sname1,sname2):
+def isFollow(userid1,userid2):
     isFollow = False
     driver,session = Conn()
-    statement = "MATCH (n:TwitterUser {screen_name:'%s'})-[:follows]->(m:TwitterUser {screen_name:'%s'}) RETURN exists((n)-[:follows]->(m)) as isFollow" % (sname1,sname2)
+    statement = "MATCH (n:TwitterUser {userid:'%s'})-[:follows]->(m:TwitterUser {userid:'%s'}) RETURN exists((n)-[:follows]->(m)) as isFollow" % (userid1,userid2)
     result = session.run(statement)
     for res in result:
         isFollow = res['isFollow']
@@ -50,27 +50,28 @@ def isFollow(sname1,sname2):
 
 # 装饰器函数,在插入两个结点之间的关系时先判断两个结点之间是否已经存在关系
 def checkRel(func):
-    def wrapper(sname1,sname2):
+    def wrapper(userid1,userid2):
         driver,session = Conn()
-        statement = "MATCH (n:TwitterUser {screen_name:'%s'})-[:follows]->(m:TwitterUser {screen_name:'%s'}) RETURN exists((n)-[:follows]->(m)) as isFollow" % (sname1,sname2)
+        statement = "MATCH (n:TwitterUser {userid:'%s'})-[:follows]->(m:TwitterUser {userid:'%s'}) RETURN exists((n)-[:follows]->(m)) as isFollow" % (userid1,userid2)
         result = session.run(statement)
+        isFollow = False
         for res in result:
             isFollow = res['isFollow']
         Close(driver,session)
         if(isFollow == True):
             print "关系已存在!"
         else:
-            func(sname1,sname2)
+            func(userid1,userid2)
     return wrapper
 
 # 根据screen_name更新结点之间的关系
 # 定义一个装饰器
 @checkRel
-def InsertRel(sname1,sname2):
+def InsertFollowsRel(userid1,userid2):
     # id1用户followsid2用户
     # 增加这样的关系 (n:TwitterUser {screen_name:sname1})-[:follows]->(m:TwitterUser {screen_name:sname2})
     driver,session = Conn()
-    statement = "MATCH (n:TwitterUser {screen_name:'%s'}),(m:TwitterUser {screen_name:'%s'}) CREATE (n)-[:follows]->(m)" % (sname1,sname2)
+    statement = "MATCH (n:TwitterUser {userid:'%s'}),(m:TwitterUser {userid:'%s'}) CREATE (n)-[:follows]->(m)" % (userid1,userid2)
     # if(isFollow(sname1,sname2) == True):
     #     print "关系已存在!"
     #     return
@@ -100,7 +101,7 @@ def UniqueID():
     Close(session,driver)
 
 # 查询到某一user深度为depth的follows关系
-def SearchFollowersByDepth(sname,depth=1):
+def SearchFollowersByDepth(userid,depth=1):
     followers = []
     '''
 
@@ -109,7 +110,7 @@ def SearchFollowersByDepth(sname,depth=1):
     :return:
     '''
     driver,session = Conn()
-    statement = "MATCH (followers:TwitterUser)-[:follows*..%d]->(targetUser:TwitterUser {screen_name:'%s'}) RETURN distinct followers.screen_name" % (depth,sname)
+    statement = "MATCH (followers:TwitterUser)-[:follows*..%d]->(targetUser:TwitterUser {userid:'%s'}) RETURN distinct followers.screen_name" % (depth,userid)
     # session运行带参
     results = session.run(statement)
     # 遍历结果集
@@ -130,3 +131,13 @@ def SearchUsersByCategory(category):
         users.append(record['user.screen_name'])
     Close(session,driver)
     return users
+
+# 可怕的操作,删除数据库中所有结点和关系
+def DeleteAllNodesAndRels():
+    driver,session = Conn()
+    # 创建索引语句
+    statement = "MATCH (n:TwitterUser) DETACH DELETE n"
+    with session.begin_transaction() as tx:
+        tx.run(statement)
+        tx.success = True
+    Close(session,driver)

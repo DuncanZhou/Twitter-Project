@@ -10,6 +10,65 @@ from UserInterestExtract import ExtractTargetUserInterest
 from UserInfluenceAnalysis import UserInfluNoPageRank
 from SentimentModule import SentimentWithTime
 from XMLInteraction import GenerateXML as xml
+################################################################
+'''
+对外接口
+'''
+################################################################
+# 统一从mongo中获取用户信息
+def GetUserInfo(userid):
+    '''
+
+    :param userid: 用户的userid
+    :return: 返回TwitterUser类对象
+    '''
+    pass
+
+# 获取用户推文文本
+def GetUserTweets(userid):
+    '''
+
+    :param userid: 用户的userid
+    :return: 返回近期的推文文本
+    '''
+    pass
+
+# 推断用户的领域类别
+def GetUserCategory(userid):
+    '''
+
+    :param userid: 用户的userid
+    :return: 返回用户的分类类别
+    '''
+    pass
+
+# 从推文和description中得到用户的兴趣标签
+def GetUserInterestTags(userid):
+    '''
+
+    :param userid: 用户的userid
+    :return: 返回用户的兴趣标签
+    '''
+    pass
+
+# 获取用户的活跃度,影响力度分数,影响力分数,影响力等级
+def GetUserInfluence(userid):
+    '''
+
+    :param userid: 用户的userid
+    :return: 返回四个结果,activity,influence,influenceScore,rank_influence(influence是计算influenceScore的中间结果)
+    '''
+    pass
+
+# 获取用户的心理状态
+def GetUserPsychology(userid):
+    '''
+
+    :param userid: 用户的userid
+    :return: 返回三个结果:最新推文的起始时间,以设定的时间间隔的心理状态序列,近期的心理状态结果
+    '''
+    pass
+
 # 根据用户的userid,从mysql和mongo数据库中构建人物画像
 def UserProfile(userid):
     start_time = time.time()
