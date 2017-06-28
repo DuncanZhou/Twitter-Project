@@ -55,7 +55,7 @@ def getTimeSequence(userid):
     return Time
 
 # 以两个月为一个周期,获取周期性的心理状态
-def getTweetsBy2Months(userid,period):
+def getTweetsByMonths(tweets,period):
     '''
 
     :param userid:用户id
@@ -65,7 +65,6 @@ def getTweetsBy2Months(userid,period):
     # count表示推文条数
     count = 0
     threshold = period * 30
-    tweets = mongo.getTweets(userid)
     if tweets == None:
         print "没有推文"
         return
@@ -94,14 +93,14 @@ def getTweetsBy2Months(userid,period):
 
 # 对外接口
 # 加入时间后的推文情感分类
-def SentimentWithTime(userid,period=1):
+def SentimentWithTime(tweets,period=1):
     '''
 
     :param userid:用户id
     :param period: 时间间隔的月数(默认参数1个月)
     :return:返回最开始推文起始时间和每个周期的心理状态以及总体心理状态结果
     '''
-    starttime,period_tweets = getTweetsBy2Months(userid,period)
+    starttime,period_tweets = getTweetsByMonths(tweets,period)
     psychologic = []
     neg = pos = 0
     for tweet in period_tweets:
@@ -123,3 +122,4 @@ def SentimentWithTime(userid,period=1):
         res = -1
 
     return starttime,psychologic,res
+

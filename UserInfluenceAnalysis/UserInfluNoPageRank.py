@@ -40,8 +40,6 @@ def getUsersByCategory(table,category):
 def CalucateParameters(tweets):
     count = 0
     OTN = RTN = RTrtN = ORTN = OFavN = RTFavN = 0
-    if tweets.count() == None:
-        return OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
     for tweet in tweets:
         # 转推
         if re.match(r"^RT @[\w|\d|_]+",tweet["text"]) != None:
@@ -59,9 +57,9 @@ def CalucateParameters(tweets):
     return OTN,RTN,ORTN,RTrtN,OFavN,RTFavN
 
 # active
-def CalucateActive(user,OriginN,RTN):
+def CalucateActive(followers_count,OriginN,RTN):
     # 调整粉丝数的权重,占活跃度的0.5,原推文和转推数分别是0.3和0.2
-    d_active = (0.3 * math.log(OriginN + 1,math.e) + 0.2 * math.log(RTN + 1,math.e) + 0.5 * math.log(user.followers_count + 1,math.e)) * 10
+    d_active = (0.3 * math.log(OriginN + 1,math.e) + 0.2 * math.log(RTN + 1,math.e) + 0.5 * math.log(followers_count + 1,math.e)) * 10
     return d_active
 
 # Influence
@@ -81,10 +79,25 @@ def CalucateUserInfluence(userid,table="StandardUsers"):
     user = getUserInfo(userid,table)
     # print user.location
     OTN,RTN,ORTN,RTrtN,OFavN,RTFavN = CalucateParameters(result)
-    d_active = CalucateActive(user,OTN,RTN)
+    d_active = CalucateActive(user.followers_count,OTN,RTN)
     d_influ = CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN)
     score = CalucateTwitterInfluence(d_active,d_influ)
 
+    # 返回用户影响力分数
+    if score < config.medium_influence:
+        rank = 1
+    elif score >= config.medium_influence and score < config.high_influence:
+        rank = 2
+    else:
+        rank = 3
+    return score,d_active,d_influ,rank
+
+# 获取用户的影响力
+def GetUserInfluence(followers_count,tweets):
+    OTN,RTN,ORTN,RTrtN,OFavN,RTFavN = CalucateParameters(tweets)
+    d_active = CalucateActive(followers_count,OTN,RTN)
+    d_influ = CalucateInfluence(ORTN,OFavN,RTrtN,RTFavN)
+    score = CalucateTwitterInfluence(d_active,d_influ)
     # 返回用户影响力分数
     if score < config.medium_influence:
         rank = 1

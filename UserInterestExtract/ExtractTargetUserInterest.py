@@ -416,6 +416,27 @@ def GenerateAllUsersInterestTags(table="StandardUsers"):
         count += 1
         print "finished %d users" % count
 
+# 以推文和用户简介为参数获取用户的兴趣标签
+def GenerateInterestsWithTFFromTweets(text,bio):
+    #　获取简介的兴趣标签
+    bio = Generation(PreProcess(bio))
+    # 获取推文的兴趣标签
+    res = Generation(PreProcess(text))
+    usercandidate = CalculateTF(res)[:10]
+    interests = map(lambda interest:interest[0],usercandidate)
+    # 把简介加入到兴趣标签中,去除重复的
+    interests = set(interests)
+    new_interests = set()
+    lower_interest = set()
+    interests.union(set(bio))
+    # 去除重复的标签
+    for interest in interests:
+        if interest.lower() not in lower_interest:
+            lower_interest.add(interest.lower())
+            new_interests.add(interest)
+    interests = ",".join(new_interests)
+    return interests
+
 # 样例
 def test():
     starttime = time.time()
@@ -431,7 +452,3 @@ def test():
 # print PreProcess("China is a nice country")
 # print mysql.getUserInfo('104557267',"StandardUsers")
 # print mysql.getUserDescription("StandardUsers",'10126672')
-
-
-
-

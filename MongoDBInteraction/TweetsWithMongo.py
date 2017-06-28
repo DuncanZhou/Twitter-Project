@@ -91,3 +91,12 @@ def getUserById(userid,collection_name="StandardUsers"):
     d = collection.find({"user_id":long(userid)})
     twitter_user = TwitterUsers.User(d[0]['user_id'],d[0]['screen_name'],d[0]['name'],d[0]['location'],d[0]['statuses_count'],d[0]['friends_count'],d[0]['followers_count'],d[0]['favourites_count'],d[0]['verified'],d[0]['category'],d[0]['influenceScore'],d[0]['rank_influ'],d[0]['psy'],d[0]['psy_seq'],d[0]['psy_tweets_starttime'],d[0]['interest_tags'],d[0]['description'],d[0]['crawler_date'])
     return twitter_user
+
+# 检查数据库中是否存在用户
+def CheckUser(userid,collection_name="StandardUsers"):
+    db = Conn()
+    collection = db[collection_name]
+    d = collection.find({"user_id":long(userid)}).count()
+    if d == 0:
+        return False
+    return True
