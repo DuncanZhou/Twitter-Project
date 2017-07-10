@@ -170,3 +170,4 @@ def UserProfileFromDic(userinfo):
     userinfo['psy'] = config.psychological[res]
 
     return userinfo
+# print GetUserInfo("10047382")

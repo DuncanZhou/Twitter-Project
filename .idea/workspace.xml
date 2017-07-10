@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="12a2cdfe-28c0-4595-8705-b17fe05afcc3" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MongoDBInteraction/TweetsWithMongo.py" afterPath="$PROJECT_DIR$/MongoDBInteraction/TweetsWithMongo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MySQLInteraction/TwitterWithMysql.py" afterPath="$PROJECT_DIR$/MySQLInteraction/TwitterWithMysql.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SentimentModule/SentimentWithTime.py" afterPath="$PROJECT_DIR$/SentimentModule/SentimentWithTime.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TwitterUsers/TwitterUsers.py" afterPath="$PROJECT_DIR$/TwitterUsers/TwitterUsers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/UserInfluenceAnalysis/UserInfluNoPageRank.py" afterPath="$PROJECT_DIR$/UserInfluenceAnalysis/UserInfluNoPageRank.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/UserInterestExtract/ExtractTargetUserInterest.py" afterPath="$PROJECT_DIR$/UserInterestExtract/ExtractTargetUserInterest.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/UserProfile.py" afterPath="$PROJECT_DIR$/UserProfile.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/XMLInteraction/GenerateXML.py" afterPath="$PROJECT_DIR$/XMLInteraction/GenerateXML.py" />
     </list>
     <ignored path="TwitterProject.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -35,11 +31,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="UserProfile.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="UserProfile.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/UserProfile.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="566">
-              <caret line="171" column="19" selection-start-line="171" selection-start-column="19" selection-end-line="171" selection-end-column="19" />
+            <state relative-caret-position="311">
+              <caret line="152" column="0" selection-start-line="152" selection-start-column="0" selection-end-line="152" selection-end-column="0" />
               <folding>
                 <element signature="e#59#72#0" expanded="true" />
               </folding>
@@ -47,44 +43,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config.py">
+      <file leaf-file-name="GenerateXML.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/XMLInteraction/GenerateXML.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="110">
-              <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+            <state relative-caret-position="-217">
+              <caret line="30" column="34" selection-start-line="30" selection-start-column="34" selection-end-line="30" selection-end-column="34" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SentimentWithTime.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/SentimentModule/SentimentWithTime.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="820">
-              <caret line="123" column="11" selection-start-line="123" selection-start-column="11" selection-end-line="123" selection-end-column="36" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TweetsWithMongo.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/MongoDBInteraction/TweetsWithMongo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="21" column="10" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="UserInfluNoPageRank.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/UserInfluenceAnalysis/UserInfluNoPageRank.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="316">
-              <caret line="107" column="38" selection-start-line="107" selection-start-column="11" selection-end-line="107" selection-end-column="38" />
-              <folding>
-                <element signature="e#39#48#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -142,7 +106,6 @@
         <option value="$PROJECT_DIR$/UserInfluenceAnalysis/CalcStandardUsersInfluence.py" />
         <option value="$PROJECT_DIR$/DocumentClassify/TweetsClassifyTraining.py" />
         <option value="$PROJECT_DIR$/DocumentClassify/TweetsClassify.py" />
-        <option value="$PROJECT_DIR$/XMLInteraction/GenerateXML.py" />
         <option value="$PROJECT_DIR$/DocumentClassify/AnalyzeStandardUsers.py" />
         <option value="$PROJECT_DIR$/config.py" />
         <option value="$PROJECT_DIR$/TwitterRelation/WriteInfo2CSV.py" />
@@ -150,11 +113,14 @@
         <option value="$PROJECT_DIR$/Neo4jInteraction/TwitterWithNeo4j.py" />
         <option value="$PROJECT_DIR$/MongoDBInteraction/TweetsWithMongo.py" />
         <option value="$PROJECT_DIR$/TwitterUsers/TwitterUsers.py" />
-        <option value="$PROJECT_DIR$/MySQLInteraction/TwitterWithMysql.py" />
         <option value="$PROJECT_DIR$/UserInterestExtract/ExtractTargetUserInterest.py" />
         <option value="$PROJECT_DIR$/UserInfluenceAnalysis/UserInfluNoPageRank.py" />
         <option value="$PROJECT_DIR$/SentimentModule/SentimentWithTime.py" />
+        <option value="$PROJECT_DIR$/MySQLInteraction/config.py" />
         <option value="$PROJECT_DIR$/UserProfile.py" />
+        <option value="$PROJECT_DIR$/MySQLInteraction/TwitterWithMysql.py" />
+        <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/XMLInteraction/GenerateXML.py" />
       </list>
     </option>
   </component>
@@ -214,8 +180,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -244,41 +208,15 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="UserInfluenceAnalysis" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TwitterProject" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TwitterProject" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TwitterUsers" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TwitterProject" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TwitterProject" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="MongoDBInteraction" />
+              <option name="myItemId" value="XMLInteraction" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -991,12 +929,16 @@
       <workItem from="1497422513435" duration="13735000" />
       <workItem from="1498034566246" duration="11670000" />
       <workItem from="1498546562047" duration="1157000" />
-      <workItem from="1498630431071" duration="3031000" />
+      <workItem from="1498630431071" duration="4303000" />
+      <workItem from="1499072548368" duration="1938000" />
+      <workItem from="1499075225779" duration="186000" />
+      <workItem from="1499347642075" duration="124000" />
+      <workItem from="1499685240483" duration="1408000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="269674000" />
+    <option name="totallyTimeSpent" value="274602000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1019,10 +961,10 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3286638" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21025105" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29079497" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18524681" sideWeight="0.69857144" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16971713" sideWeight="0.69857144" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3294509" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24958402" sideWeight="0.49093264" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1076,13 +1018,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="14" />
+      <option name="time" value="15" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/TweetsProcess/SlangDictionary/Slang.pickle" />
-    <entry file="file://$PROJECT_DIR$/TweetsProcess/TweetsSamples/realDonaldTrump.txt" />
     <entry file="file://$PROJECT_DIR$/TweetsProcess/SlangDictionary/No-Slang" />
     <entry file="file://$PROJECT_DIR$/NLTKLearning/__init__.py" />
     <entry file="file://$PROJECT_DIR$/TweetsProcess/TweetsAnalysis.py" />
@@ -1190,16 +1130,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/XMLInteraction/GenerateXML.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="96">
-          <caret line="16" column="8" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="8" />
-          <folding>
-            <element signature="e#60#82#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TwitterRelation/relationships" />
     <entry file="file://$PROJECT_DIR$/TwitterRelation/CombineRelations.py" />
     <entry file="file://$PROJECT_DIR$/TwitterRelation/__init__.py">
@@ -1216,13 +1146,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DocumentClassify/AnalyzeStandardUsers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="487">
-          <caret line="29" column="32" selection-start-line="29" selection-start-column="32" selection-end-line="29" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TwitterRelation/WriteInfo2CSV.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-528">
@@ -1231,13 +1154,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TwitterRelation/TestNeo4jDriver.py" />
-    <entry file="file://$PROJECT_DIR$/Neo4jInteraction/TwitterWithNeo4j.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="254">
-          <caret line="58" column="38" selection-start-line="58" selection-start-column="38" selection-end-line="58" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TwitterRelation/TwitterUsersRelation.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1516">
@@ -1256,39 +1172,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1416">
           <caret line="59" column="196" selection-start-line="59" selection-start-column="196" selection-end-line="59" selection-end-column="196" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MySQLInteraction/TwitterWithMysql.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2784">
-          <caret line="119" column="22" selection-start-line="119" selection-start-column="22" selection-end-line="119" selection-end-column="22" />
-          <folding>
-            <element signature="e#71#85#0" expanded="true" />
-            <marker date="1498546888850" expanded="true" signature="716:768" ph="SELECT count... " />
-            <marker date="1498546888850" expanded="true" signature="1141:1177" ph="SELECT * FRO... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="1932:1946" ph="SELECT * FRO... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="1932:1948" ph="SELECT * FRO... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="2565:2584" ph="select useri... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="2565:2586" ph="select useri... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="2865:2905" ph="select * fro... " />
-            <marker date="1498546888850" expanded="true" signature="3522:3568" ph="SELECT * FRO... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="3810:3863" ph="update missi... " />
-            <marker date="1498546888850" expanded="true" signature="4041:4088" ph="update missi... " />
-            <marker date="1498546888850" expanded="true" signature="4256:4305" ph="update missi... " />
-            <marker date="1498546888850" expanded="true" signature="4499:4539" ph="select disti... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="4499:4541" ph="select categ... " />
-            <marker date="1498546888850" expanded="true" signature="4499:4559" ph="select categ... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="4886:4946" ph="select categ... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="5450:5535" ph="update missi... " />
-            <marker date="1498546888850" expanded="true" signature="5843:5897" ph="update missi... " />
-            <marker date="1498546888850" expanded="true" signature="6082:6101" ph="select useri... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="6082:6131" ph="select useri... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="6415:6526" ph="update missi... " />
-            <marker date="1498546888850" expanded="true" signature="6828:6892" ph="select sourc... missing_value" />
-            <marker date="1498546888850" expanded="true" signature="6828:6894" ph="select useri... missing_value" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1308,9 +1191,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MySQLInteraction/config.py" />
     <entry file="file://$PROJECT_DIR$/UserInfluenceAnalysis/UserInfluNoPageRank.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="316">
+        <state relative-caret-position="2568">
           <caret line="107" column="38" selection-start-line="107" selection-start-column="11" selection-end-line="107" selection-end-column="38" />
           <folding>
             <element signature="e#39#48#0" expanded="true" />
@@ -1320,35 +1211,89 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MongoDBInteraction/TweetsWithMongo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="21" column="10" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
+        <state relative-caret-position="168">
+          <caret line="7" column="12" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SentimentModule/SentimentWithTime.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="820">
+        <state relative-caret-position="557">
           <caret line="123" column="11" selection-start-line="123" selection-start-column="11" selection-end-line="123" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
+    <entry file="file://$PROJECT_DIR$/MySQLInteraction/TwitterWithMysql.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        <state relative-caret-position="-1032">
+          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+          <folding>
+            <element signature="e#71#85#0" expanded="true" />
+            <marker date="1499073094989" expanded="true" signature="716:768" ph="SELECT count... " />
+            <marker date="1499073094989" expanded="true" signature="1141:1177" ph="SELECT * FRO... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="1932:1946" ph="SELECT * FRO... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="1932:1948" ph="SELECT * FRO... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="2565:2584" ph="select useri... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="2565:2586" ph="select useri... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="2865:2905" ph="select * fro... " />
+            <marker date="1499073094989" expanded="true" signature="3522:3568" ph="SELECT * FRO... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="3810:3863" ph="update missi... " />
+            <marker date="1499073094989" expanded="true" signature="4041:4088" ph="update missi... " />
+            <marker date="1499073094989" expanded="true" signature="4256:4305" ph="update missi... " />
+            <marker date="1499073094989" expanded="true" signature="4499:4539" ph="select disti... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="4499:4541" ph="select categ... " />
+            <marker date="1499073094989" expanded="true" signature="4499:4559" ph="select categ... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="4886:4946" ph="select categ... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="5450:5535" ph="update missi... " />
+            <marker date="1499073094989" expanded="true" signature="5843:5897" ph="update missi... " />
+            <marker date="1499073094989" expanded="true" signature="6082:6101" ph="select useri... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="6082:6131" ph="select useri... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="6415:6526" ph="update missi... " />
+            <marker date="1499073094989" expanded="true" signature="6828:6892" ph="select sourc... missing_value" />
+            <marker date="1499073094989" expanded="true" signature="6828:6894" ph="select useri... missing_value" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neo4jInteraction/TwitterWithNeo4j.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="7" column="5" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="471">
+          <caret line="28" column="53" selection-start-line="28" selection-start-column="53" selection-end-line="28" selection-end-column="53" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DocumentClassify/AnalyzeStandardUsers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="648">
+          <caret line="29" column="32" selection-start-line="29" selection-start-column="32" selection-end-line="29" selection-end-column="32" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/UserProfile.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="566">
-          <caret line="171" column="19" selection-start-line="171" selection-start-column="19" selection-end-line="171" selection-end-column="19" />
+        <state relative-caret-position="311">
+          <caret line="152" column="0" selection-start-line="152" selection-start-column="0" selection-end-line="152" selection-end-column="0" />
           <folding>
             <element signature="e#59#72#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/XMLInteraction/GenerateXML.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-217">
+          <caret line="30" column="34" selection-start-line="30" selection-start-column="34" selection-end-line="30" selection-end-column="34" />
+          <folding />
         </state>
       </provider>
     </entry>
